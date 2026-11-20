@@ -1,0 +1,40 @@
+# Bytecode y cachés de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Empaquetado
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Herramientas de calidad
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+
+# Datos generados por la herramienta (casos, caché, logs)
+casos/
+cache/
+logs/
+*.log
+
+# Sistema / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
