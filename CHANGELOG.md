@@ -5,6 +5,35 @@ explica **qué** cambió y **por qué**, comparado con el original de Quantika14
 
 ## [Sin publicar] — 2.0.0.dev0
 
+### Fase 4 — Calidad
+
+#### Añadido
+- **MongoDB opcional** (`pip install osintsuite[mongo]`, `OSINT_DATABASE_URL=mongodb://…`).
+  Cumple el mismo contrato que SQLite, probado con `mongomock` y, en CI, contra un MongoDB 7
+  real. *Por qué*: el original obligaba a instalar MongoDB; ahora es una opción para quien
+  quiera compartir casos entre equipos.
+- **GitHub Actions** (`.github/workflows/ci.yml`):
+  - lint y formato (ruff) y tipos (mypy estricto);
+  - tests en **Linux y Windows** con Python **3.11, 3.12 y 3.13**, con cobertura mínima del 70 %;
+  - tests contra MongoDB real;
+  - `pip-audit`;
+  - construcción y arranque de la imagen Docker.
+- **Docker**: `Dockerfile` multi-stage (dependencias exactas de `uv.lock`, sin herramientas
+  de desarrollo, usuario sin privilegios, volumen `/datos`) y `docker-compose.yml` con
+  MongoDB como **perfil opcional** (solo accesible desde la red interna y desde 127.0.0.1).
+- `requirements.txt` exportado de `uv.lock` para quien prefiera `pip`.
+- Umbral de cobertura (`fail_under = 70`); la cobertura actual es del 95 %.
+
+#### Cambiado
+- Los hooks de `pre-commit` que tocan espacios y finales de fichero excluyen los datos
+  empaquetados y las fixtures, para que sigan siendo idénticos byte a byte a su origen.
+
+#### Verificado
+- `pip-audit`: **sin vulnerabilidades conocidas** en dependencias de producción ni de
+  desarrollo (20/11/2026).
+- Tests con Python 3.12 y 3.13 en Windows: 147 correctos y 1 omitido (el de MongoDB real,
+  que necesita `TEST_MONGO_URL`).
+
 ### Fase 3 — Capacidades
 
 Todas las fuentes se han probado **en vivo** el 20/11/2026 con objetivos no personales
