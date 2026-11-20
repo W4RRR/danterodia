@@ -85,7 +85,7 @@ def test_open_repository(settings: Settings) -> None:
     r = open_repository(settings.db_url)
     r.close()
     with pytest.raises(ValueError, match="no soportado"):
-        open_repository("mongodb://localhost")
+        open_repository("postgresql://localhost/x")
 
 
 def test_evidencias(settings: Settings) -> None:
