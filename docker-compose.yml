@@ -1,0 +1,40 @@
+# Uso básico (SQLite en ./datos):
+#   docker compose build
+#   docker compose run --rm osint persona "Nombre Apellido" -f "Finalidad" -r html -o /trabajo/informes
+#
+# Con MongoDB (perfil opcional):
+#   docker compose --profile mongo up -d mongo
+#   OSINT_DATABASE_URL=mongodb://mongo:27017/osintsuite docker compose --profile mongo run --rm osint caso listar
+#
+# Las claves de API se leen de .env (copia .env.example). Nunca las pongas en este fichero.
+
+services:
+  osint:
+    build: .
+    image: osintsuite:latest
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      OSINT_DATA_DIR: /datos
+      OSINT_DATABASE_URL: ${OSINT_DATABASE_URL:-}
+    volumes:
+      - ./datos:/datos                       # base de datos, caché, índice y casos
+      - ./informes:/trabajo/informes         # informes generados
+      - ./data:/trabajo/data:ro              # datasets originales (osint indice locales)
+    stdin_open: true
+    tty: true
+
+  mongo:
+    image: mongo:7
+    profiles: ["mongo"]
+    restart: unless-stopped
+    # Sin autenticación: solo es accesible desde la red interna de Compose y desde
+    # 127.0.0.1 (para los tests). No lo publiques en otras interfaces sin activar usuarios.
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongo-datos:/data/db
+
+volumes:
+  mongo-datos:

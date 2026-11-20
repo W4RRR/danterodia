@@ -38,3 +38,7 @@ logs/
 Thumbs.db
 .idea/
 .vscode/
+
+# Docker Compose (volúmenes locales)
+datos/
+informes/

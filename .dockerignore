@@ -1,0 +1,16 @@
+# Solo hace falta pyproject.toml, uv.lock, src/ y los ficheros de licencia.
+.git
+.github
+.venv
+legacy
+data
+docs
+tests
+informes
+casos
+cache
+datos
+**/__pycache__
+*.pyc
+.env
+.env.*
