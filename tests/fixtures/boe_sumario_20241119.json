@@ -1,0 +1,81 @@
+{
+ "status": {
+  "code": "200",
+  "text": "ok"
+ },
+ "data": {
+  "sumario": {
+   "metadatos": {
+    "publicacion": "BOE",
+    "fecha_publicacion": "20241119"
+   },
+   "diario": [
+    {
+     "numero": "279",
+     "sumario_diario": {
+      "identificador": "BOE-S-2024-279",
+      "url_pdf": {
+       "szBytes": "491083",
+       "szKBytes": "480",
+       "texto": "https://www.boe.es/boe/dias/2024/11/19/pdfs/BOE-S-2024-279.pdf"
+      }
+     },
+     "seccion": [
+      {
+       "codigo": "1",
+       "nombre": "I. Disposiciones generales",
+       "departamento": [
+        {
+         "codigo": "9562",
+         "nombre": "MINISTERIO DE ASUNTOS EXTERIORES, UNIÓN EUROPEA Y COOPERACIÓN",
+         "epigrafe": [
+          {
+           "nombre": "Tratados internacionales",
+           "item": {
+            "identificador": "BOE-A-2024-24025",
+            "control": "2024/17575",
+            "titulo": "Acuerdo Comercial entre la Unión Europea y sus Estados Miembros, por una parte, y Colombia y el Perú, por otra, hecho en Bruselas el 26 de junio de 2012.",
+            "url_pdf": {
+             "szBytes": "19158017",
+             "szKBytes": "18709",
+             "pagina_inicial": "149279",
+             "pagina_final": "152305",
+             "texto": "https://www.boe.es/boe/dias/2024/11/19/pdfs/BOE-A-2024-24025.pdf"
+            },
+            "url_html": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2024-24025",
+            "url_xml": "https://www.boe.es/diario_boe/xml.php?id=BOE-A-2024-24025"
+           }
+          }
+         ]
+        },
+        {
+         "codigo": "8170",
+         "nombre": "COMUNIDAD FORAL DE NAVARRA",
+         "epigrafe": [
+          {
+           "nombre": "Impuestos",
+           "item": {
+            "identificador": "BOE-A-2024-24026",
+            "control": "2024/17629",
+            "titulo": "Ley Foral 16/2024, de 30 de octubre, de modificación del Decreto Foral Legislativo 4/2008, de 2 de junio, por el que aprueba el Texto Refundido de la Ley Foral del Impuesto sobre la Renta de las Personas Físicas.",
+            "url_pdf": {
+             "szBytes": "204353",
+             "szKBytes": "200",
+             "pagina_inicial": "152306",
+             "pagina_final": "152307",
+             "texto": "https://www.boe.es/boe/dias/2024/11/19/pdfs/BOE-A-2024-24026.pdf"
+            },
+            "url_html": "https://www.boe.es/diario_boe/txt.php?id=BOE-A-2024-24026",
+            "url_xml": "https://www.boe.es/diario_boe/xml.php?id=BOE-A-2024-24026"
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

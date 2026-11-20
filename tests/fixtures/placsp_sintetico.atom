@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Estructura real del feed de PLACSP (CODICE); datos INVENTADOS. -->
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:cbc="urn:dgpe:names:draft:codice:schema:xsd:CommonBasicComponents-2"
+      xmlns:cac="urn:dgpe:names:draft:codice:schema:xsd:CommonAggregateComponents-2"
+      xmlns:cac-place-ext="urn:dgpe:names:draft:codice-place-ext:schema:xsd:CommonAggregateComponents-2"
+      xmlns:cbc-place-ext="urn:dgpe:names:draft:codice-place-ext:schema:xsd:CommonBasicComponents-2">
+  <link rel="self" href="https://contrataciondelsectorpublico.gob.es/feed.atom"/>
+  <link rel="next" href="https://contrataciondelsectorpublico.gob.es/feed_2.atom"/>
+  <entry>
+    <id>https://contrataciondelestado.es/sindicacion/licitacionesPerfilContratante/1</id>
+    <link href="https://contrataciondelestado.es/wps/poc?uri=deeplink:detalle_licitacion&amp;idEvl=1"/>
+    <title>Suministro de material de oficina</title>
+    <updated>2026-11-19T10:00:00+01:00</updated>
+    <cac-place-ext:ContractFolderStatus>
+      <cac-place-ext:LocatedContractingParty>
+        <cac:Party><cac:PartyName><cbc:Name>Ayuntamiento de Villaficticia</cbc:Name></cac:PartyName></cac:Party>
+      </cac-place-ext:LocatedContractingParty>
+      <cac:ProcurementProject><cbc:Name>Suministro de material de oficina 2027</cbc:Name></cac:ProcurementProject>
+      <cac:TenderResult>
+        <cbc:AwardDate>2026-11-10</cbc:AwardDate>
+        <cac:WinningParty>
+          <cac:PartyIdentification><cbc:ID schemeName="NIF">b00000000</cbc:ID></cac:PartyIdentification>
+          <cac:PartyName><cbc:Name>PAPELERIA INVENTADA SL</cbc:Name></cac:PartyName>
+        </cac:WinningParty>
+        <cac:AwardedTenderedProject><cac:LegalMonetaryTotal><cbc:TaxExclusiveAmount currencyID="EUR">12500.00</cbc:TaxExclusiveAmount></cac:LegalMonetaryTotal></cac:AwardedTenderedProject>
+      </cac:TenderResult>
+    </cac-place-ext:ContractFolderStatus>
+  </entry>
+  <entry>
+    <id>https://contrataciondelestado.es/sindicacion/licitacionesPerfilContratante/2</id>
+    <title>Licitación sin adjudicar</title>
+    <updated>2026-11-19T11:00:00+01:00</updated>
+  </entry>
+</feed>

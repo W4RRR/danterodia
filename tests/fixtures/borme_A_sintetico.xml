@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Formato real de diario_borme/xml.php (sección A); empresas y personas INVENTADAS. -->
+<documento fecha_actualizacion="20260526T140522Z">
+  <metadatos>
+    <identificador>BORME-A-2024-223-41</identificador>
+    <titulo>SEVILLA</titulo>
+    <fecha_publicacion>20241119</fecha_publicacion>
+  </metadatos>
+  <texto>
+    <p class="articulo">500001 - CONSERVAS FICTICIAS DEL SUR SOCIEDAD LIMITADA.</p>
+    <p class="parrafo">Constitución.  Comienzo de operaciones: 28.10.24. Objeto social: Fabricación de conservas. Domicilio: CALLE INVENTADA 1 (SEVILLA). Capital: 3.000,00 Euros.  Nombramientos.  Adm. Solid.: PEREZ RUIZ ANA MARIA;MUÑOZ LOPEZ JOSE.  Datos registrales. S 8 , H SE 1, I/A 1 (11.11.24).</p>
+    <p class="articulo">500002 - TALLERES IMAGINARIOS SA.</p>
+    <p class="parrafo">Ceses/Dimisiones.  Adm. Unico: GARCIA VEGA LUIS.  Nombramientos.  Adm. Unico: HOLDING INVENTADO SL.  Apoderado: PEREZ RUIZ ANA MARIA.  Cambio del Organo de Administración: Administrador unico a Administradores solidarios.  Datos registrales. S 8 , H SE 2, I/A 5 (11.11.24).</p>
+    <p class="articulo">500003 - SIN CARGOS SL.</p>
+    <p class="parrafo">Ampliación de capital.  Capital: 310,00 Euros.  Datos registrales. S 8 , H SE 3, I/A 6 (11.11.24).</p>
+  </texto>
+</documento>

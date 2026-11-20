@@ -1,0 +1,61 @@
+{
+ "status": {
+  "code": "200",
+  "text": "ok"
+ },
+ "data": {
+  "sumario": {
+   "metadatos": {
+    "publicacion": "BORME",
+    "fecha_publicacion": "20241119"
+   },
+   "diario": [
+    {
+     "numero": "223",
+     "sumario_diario": {
+      "identificador": "BORME-S-2024-223",
+      "url_pdf": {
+       "szBytes": "186055",
+       "szKBytes": "182",
+       "texto": "https://www.boe.es/borme/dias/2024/11/19/pdfs/BORME-S-2024-223.pdf"
+      }
+     },
+     "seccion": [
+      {
+       "codigo": "A",
+       "nombre": "SECCIÓN PRIMERA. Empresarios. Actos inscritos",
+       "item": [
+        {
+         "identificador": "BORME-A-2024-223-02",
+         "titulo": "ALBACETE",
+         "url_pdf": {
+          "szBytes": "141067",
+          "szKBytes": "138",
+          "pagina_inicial": "52128",
+          "pagina_final": "52129",
+          "texto": "https://www.boe.es/borme/dias/2024/11/19/pdfs/BORME-A-2024-223-02.pdf"
+         },
+         "url_html": "https://www.boe.es/diario_borme/txt.php?id=BORME-A-2024-223-02",
+         "url_xml": "https://www.boe.es/diario_borme/xml.php?id=BORME-A-2024-223-02"
+        },
+        {
+         "identificador": "BORME-A-2024-223-03",
+         "titulo": "ALICANTE/ALACANT",
+         "url_pdf": {
+          "szBytes": "218184",
+          "szKBytes": "213",
+          "pagina_inicial": "52130",
+          "pagina_final": "52140",
+          "texto": "https://www.boe.es/borme/dias/2024/11/19/pdfs/BORME-A-2024-223-03.pdf"
+         },
+         "url_html": "https://www.boe.es/diario_borme/txt.php?id=BORME-A-2024-223-03",
+         "url_xml": "https://www.boe.es/diario_borme/xml.php?id=BORME-A-2024-223-03"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}
