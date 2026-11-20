@@ -4,14 +4,14 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: ^(legacy|data)/
+        exclude: ^(legacy|data|src/osintsuite/data|tests/fixtures)/
       - id: end-of-file-fixer
-        exclude: ^(legacy|data)/
+        exclude: ^(legacy|data|src/osintsuite/data|tests/fixtures)/
       - id: check-yaml
       - id: check-toml
       - id: check-added-large-files
         args: ["--maxkb=2048"]
-        exclude: ^(legacy|data)/
+        exclude: ^(legacy|data|src/osintsuite/data|tests/fixtures)/
       - id: detect-private-key
   - repo: local
     hooks:

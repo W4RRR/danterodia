@@ -1,0 +1,97 @@
+# Integración continua: calidad, tipos, tests (Linux y Windows) y auditoría de dependencias.
+name: CI
+
+on:
+  push:
+    branches: [main, modernizacion]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_FROZEN: "1"          # usar exactamente las versiones de uv.lock
+  PYTHONUTF8: "1"         # salida en UTF-8 también en Windows
+
+jobs:
+  calidad:
+    name: Lint y tipos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync
+      - name: Formato (ruff format)
+        run: uv run ruff format --check .
+      - name: Lint (ruff check)
+        run: uv run ruff check .
+      - name: Tipos (mypy estricto)
+        run: uv run mypy
+
+  tests:
+    name: Tests · ${{ matrix.os }} · Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync
+      - name: Tests sin conexión con cobertura (mínimo 70 %)
+        run: uv run pytest --cov --cov-report=term --cov-report=xml
+      - name: La CLI arranca
+        run: uv run osint --help
+
+  mongo:
+    name: Tests contra MongoDB real
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports: ["27017:27017"]
+    env:
+      TEST_MONGO_URL: mongodb://localhost:27017/osintsuite_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync
+      - run: uv run pytest tests/test_storage_mongo.py -v
+
+  auditoria:
+    name: Vulnerabilidades (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv export --no-emit-project --no-hashes -o requisitos-auditoria.txt
+      - run: uvx pip-audit -r requisitos-auditoria.txt --progress-spinner off
+
+  docker:
+    name: Imagen Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir
+        run: docker build -t osintsuite:ci .
+      - name: Probar la imagen
+        run: docker run --rm osintsuite:ci --help
