@@ -53,10 +53,11 @@ src/osintsuite/
 
 ```python
 class Source(Protocol):
-    name: ClassVar[str]                    # "boe"
-    input_types: ClassVar[set[EntityType]] # {PERSONA, EMPRESA}
-    requires_api_key: ClassVar[str | None] # nombre del campo en Settings, o None
-    sensitive: ClassVar[bool] = False      # datos penales o especiales → desactivada por defecto
+    name: ClassVar[str]  # "boe"
+    input_types: ClassVar[set[EntityType]]  # {PERSONA, EMPRESA}
+    requires_api_key: ClassVar[str | None]  # nombre del campo en Settings, o None
+    sensitive: ClassVar[bool] = False  # datos penales o especiales → desactivada por defecto
+
     async def run(self, target: Entity, ctx: SourceContext) -> list[Finding]: ...
 ```
 
