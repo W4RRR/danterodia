@@ -115,7 +115,19 @@ class Source(Protocol):
 
 Al acabar cada fase te paso un resumen: qué se hizo, qué falta, qué falló y cómo probarlo. Las fuentes que no pueda verificar en vivo (caídas o sin clave) quedarán marcadas así en la tabla del README.
 
-## 6. Decisiones que necesito de ti
+## 6. Decisiones tomadas (20/11/2026)
+
+- **No se borra nada salvo las herramientas obsoletas** (indicación del usuario). Se han retirado:
+  - Los scripts en Python 2: bots BOE A/B y su copia, PDF crawler, insecam, TESTRA y `modules/bing.py`.
+  - Lo que depende de servicios muertos: `twitter.py` (twint), `facebook.py`, `bots/LinkedIn`, `scammerInfo.py` y la demo `wordcloud.py`.
+  - Lo ya sustituido: `search_engines/`, `html_reports/` y `control.py`.
+  - Las copias duplicadas: ficheros `~` y `bots/TESTRA/PDFS`, idéntica byte a byte a `data/Testra`.
+- **Todos los datasets se conservan** en `data/`, incluidos `Testra` y `Adjudicaciones`. El resto del código original pasa a `legacy/` como referencia. Todo lo retirado se puede recuperar con el tag `baseline`.
+- **Las funciones de §7.1 que no son obsoletas no se borran del código original**, pero **no se portan** a la nueva herramienta.
+- **Licencia**: GPL-3.0-only, conservando los avisos del autor (`NOTICE`).
+- **uv**: se instala **dentro del entorno virtual del proyecto** (`.venv`), sin tocar el sistema.
+
+## 7. Decisiones que estaban pendientes (resueltas en §6)
 
 1. **Eliminaciones** (§4): ¿apruebas eliminar las funciones y bots marcados ☠️ (login con `123456`, spoofing, insecam, TESTRA con sus PDFs, LinkedIn, Instagram) y el código muerto (Python 2, `search_engines/`, `html_reports/`, Tor_Spider, Scraper-news con sus JSON)?
 2. **Datos de contratación antiguos** (`data/Adjudicaciones`, unos 60 MB): ¿opción A (borrar y usar PLACSP) u opción B (sacarlos del repositorio con un script de importación)?
