@@ -68,21 +68,49 @@ def tablas() -> TablasINE:
     return TablasINE(hombres, mujeres, apellidos)
 
 
+PARTICULAS = frozenset({"de", "del", "la", "las", "los", "y", "i", "san", "santa", "da", "dos"})
+
+
+def _agrupar(partes: list[str]) -> list[str]:
+    """Une las partículas con la palabra siguiente: «de la Fuente» es un único apellido."""
+    grupos: list[str] = []
+    pendiente: list[str] = []
+    for p in partes:
+        if p.lower() in PARTICULAS:
+            pendiente.append(p)
+            continue
+        grupos.append(" ".join([*pendiente, p]))
+        pendiente = []
+    if pendiente:
+        grupos.append(" ".join(pendiente))
+    return grupos
+
+
 def separar_nombre(entity: Entity) -> tuple[str, str | None, str | None]:
     """Devuelve ``(nombre, apellido1, apellido2)``.
 
     Usa los atributos ``nombre``/``apellido1``/``apellido2`` si existen; si no, supone el
-    formato español habitual: los dos últimos términos son los apellidos.
+    formato español habitual: los dos últimos grupos son los apellidos («Miguel de Cervantes
+    Saavedra» → «Miguel», «de Cervantes», «Saavedra»).
     """
     attrs = entity.attributes
     if attrs.get("nombre"):
         return str(attrs["nombre"]), attrs.get("apellido1"), attrs.get("apellido2")
-    partes = entity.value.split()
+    partes = _agrupar(entity.value.split())
     if len(partes) >= 3:
         return " ".join(partes[:-2]), partes[-2], partes[-1]
     if len(partes) == 2:
         return partes[0], partes[1], None
     return entity.value, None, None
+
+
+def _apellido(t: TablasINE, apellido: str) -> FrecuenciaApellido | None:
+    """Busca el apellido tal cual y, si no está, sin partículas (DE CERVANTES → CERVANTES)."""
+    k = clave(apellido)
+    if k in t.apellidos:
+        return t.apellidos[k]
+    sin = " ".join(w for w in k.split() if w.lower() not in PARTICULAS)
+    return t.apellidos.get(sin)
 
 
 def _buscar(tabla: dict[str, int], nombre: str) -> int:
@@ -97,8 +125,8 @@ def _buscar(tabla: dict[str, int], nombre: str) -> int:
 def estimar(nombre: str, ap1: str | None, ap2: str | None) -> dict[str, object]:
     t = tablas()
     f_h, f_m = _buscar(t.hombres, nombre), _buscar(t.mujeres, nombre)
-    a1 = t.apellidos.get(clave(ap1)) if ap1 else None
-    a2 = t.apellidos.get(clave(ap2)) if ap2 else None
+    a1 = _apellido(t, ap1) if ap1 else None
+    a2 = _apellido(t, ap2) if ap2 else None
     resultado: dict[str, object] = {
         "nombre": nombre,
         "frecuencia_nombre_hombres": f_h,
