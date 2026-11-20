@@ -1,7 +1,10 @@
 """Exportación de casos.
 
-Formatos de esta fase: JSON (con esquema), CSV, Markdown, GEXF, GraphML y CSV para Maltego.
-El informe HTML completo (cronología, grafo interactivo, anexo de evidencias) llega en la Fase 3.
+Formatos: HTML autocontenido (resumen, grafo interactivo, cronología, hallazgos y anexo de
+evidencias), JSON (con esquema), CSV, Markdown, GEXF, GraphML y CSV para Maltego.
+
+El HTML se genera con Jinja2 y **autoescape activado**: el texto que viene de webs de terceros
+no puede inyectar JavaScript en el informe (el original sí lo permitía).
 """
 
 from __future__ import annotations
@@ -9,14 +12,17 @@ from __future__ import annotations
 import csv
 import io
 import json
+import re
 from collections.abc import Callable
+from importlib.resources import files
 from pathlib import Path
 
 import networkx as nx
+from jinja2 import Environment, PackageLoader, select_autoescape
 
 from osintsuite import __version__
 from osintsuite.correlation import build_graph, merge_findings
-from osintsuite.models import Case, utcnow
+from osintsuite.models import Case, Evidence, Finding, utcnow
 
 SCHEMA_VERSION = "1.0"
 
@@ -175,7 +181,59 @@ def to_maltego_csv(case: Case) -> str:
     return buf.getvalue()
 
 
+def _fecha_hallazgo(f: Finding) -> str | None:
+    for clave in ("fecha", "BreachDate", "registro", "primera_captura", "nacimiento"):
+        valor = f.data.get(clave)
+        if isinstance(valor, str) and re.match(r"\d{4}", valor):
+            return valor[:10]
+    return None
+
+
+def to_html(case: Case) -> str:
+    env = Environment(
+        loader=PackageLoader("osintsuite.reports", "templates"),
+        autoescape=select_autoescape(["html", "j2"], default=True),
+    )
+    findings = sorted(merge_findings(case.findings), key=lambda f: f.confidence, reverse=True)
+    g = build_graph(case)
+    grafo = {
+        "nodes": [{"id": n, **d} for n, d in g.nodes(data=True)],
+        "edges": [{"source": a, "target": b, **d} for a, b, d in g.edges(data=True)],
+    }
+    evidencias: dict[str, Evidence] = {}
+    for f in findings:
+        for e in f.evidence:
+            evidencias.setdefault(e.sha256 + e.url, e)
+    cronologia = sorted(
+        ((fecha, f) for f in findings if (fecha := _fecha_hallazgo(f))), key=lambda x: x[0]
+    )
+    entidades = case.entities()
+    por_tipo: dict[str, int] = {}
+    for ent in entidades.values():
+        por_tipo[ent.type.value] = por_tipo.get(ent.type.value, 0) + 1
+    visjs = (
+        files("osintsuite.data")
+        .joinpath("vendor", "vis-network.min.js")
+        .read_text(encoding="utf-8")
+    )
+    return env.get_template("informe.html.j2").render(
+        case=case,
+        findings=findings,
+        entidades=entidades,
+        por_tipo=sorted(por_tipo.items()),
+        fuentes_ok=len({r.source for r in case.runs if r.status.value == "ok"}),
+        fuentes_error=len({r.source for r in case.runs if r.status.value in {"error", "timeout"}}),
+        evidencias=sorted(evidencias.values(), key=lambda e: e.retrieved_at),
+        cronologia=cronologia,
+        grafo=grafo,
+        visjs=visjs.replace("</script", "<\\/script"),  # nunca cerrar el <script> antes de tiempo
+        generador=f"osintsuite {__version__}",
+        generado=utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+    )
+
+
 EXPORTERS: dict[str, tuple[str, Callable[[Case], str]]] = {
+    "html": (".html", to_html),
     "json": (".json", to_json),
     "csv": (".csv", to_csv),
     "md": (".md", to_markdown),

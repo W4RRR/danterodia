@@ -11,8 +11,9 @@ Ejemplos::
 import asyncio
 import contextlib
 import sys
-from collections.abc import Iterator
+from collections.abc import Awaitable, Callable, Iterator
 from dataclasses import dataclass
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Annotated
 
@@ -23,6 +24,7 @@ from rich.table import Table
 from osintsuite import __version__
 from osintsuite.config import Settings
 from osintsuite.http import DiskCache, HttpClient
+from osintsuite.indices import IndexStore
 from osintsuite.investigations import Investigation, InvestigationOptions
 from osintsuite.investigations.orchestrator import delete_case_files, purge_expired
 from osintsuite.logs import setup_logging
@@ -83,6 +85,7 @@ class Runtime:
     settings: Settings
     repo: Repository
     registry: SourceRegistry
+    indices: IndexStore
 
 
 @contextlib.contextmanager
@@ -91,9 +94,11 @@ def runtime(**overrides: object) -> Iterator[Runtime]:
     setup_logging(settings.log_level)
     settings.ensure_dirs()
     repo = open_repository(settings.db_url)
+    indices = IndexStore(settings.data_dir / "indices.sqlite")
     try:
-        yield Runtime(settings, repo, SourceRegistry.discover())
+        yield Runtime(settings, repo, SourceRegistry.discover(), indices)
     finally:
+        indices.close()
         repo.close()
 
 
@@ -168,7 +173,7 @@ async def _investigar(
     rt: Runtime, entity: Entity, finalidad: str, opts: InvestigationOptions
 ) -> Case:
     async with HttpClient(rt.settings) as http:
-        inv = Investigation(rt.settings, rt.repo, rt.registry, http)
+        inv = Investigation(rt.settings, rt.repo, rt.registry, http, indices=rt.indices)
         return await inv.run(entity, finalidad, opts)
 
 
@@ -352,6 +357,153 @@ def version_cmd() -> None:
     typer.echo(f"osintsuite {__version__}")
 
 
+# ----------------------------------------------------------------- índices
+
+indice_app = typer.Typer(
+    help="Construir el índice local de fuentes oficiales (BOE, BORME, contratación…).",
+    no_args_is_help=True,
+)
+app.add_typer(indice_app, name="indice")
+
+Desde = Annotated[
+    str | None, typer.Option("--desde", help="Fecha inicial AAAA-MM-DD (por defecto, hace 7 días).")
+]
+Hasta = Annotated[
+    str | None, typer.Option("--hasta", help="Fecha final AAAA-MM-DD (por defecto, hoy).")
+]
+
+
+def _rango(desde: str | None, hasta: str | None) -> tuple[date, date]:
+    try:
+        h = date.fromisoformat(hasta) if hasta else datetime.now(UTC).date()
+        d = date.fromisoformat(desde) if desde else h - timedelta(days=7)
+    except ValueError as exc:
+        raise typer.BadParameter(f"Fecha no válida: {exc}") from exc
+    if d > h:
+        raise typer.BadParameter("--desde es posterior a --hasta")
+    if (h - d).days > 366:
+        raise typer.BadParameter("Rango máximo: un año por ejecución (puedes encadenar varias).")
+    return d, h
+
+
+def _ejecutar_indice(fn: Callable[[HttpClient, IndexStore], Awaitable[int]]) -> None:
+    async def _go(rt: Runtime) -> int:
+        async with HttpClient(rt.settings) as http:
+            return await fn(http, rt.indices)
+
+    with runtime() as rt:
+        n = asyncio.run(_go(rt))
+        console.print(f"[green]Hecho:[/] {n} registros nuevos en {rt.indices.path}")
+
+
+def _p(msg: str) -> None:
+    console.print(f"  {msg}", highlight=False)
+
+
+@indice_app.command("boe")
+def indice_boe(desde: Desde = None, hasta: Hasta = None) -> None:
+    """Sumarios del BOE (API de datos abiertos): títulos de todas las disposiciones."""
+    from osintsuite.indices.builders import indexar_boe
+
+    d, h = _rango(desde, hasta)
+    _ejecutar_indice(lambda http, st: indexar_boe(http, st, d, h, _p))
+
+
+@indice_app.command("borme")
+def indice_borme(
+    desde: Desde = None,
+    hasta: Hasta = None,
+    provincia: Annotated[
+        list[str] | None,
+        typer.Option("--provincia", "-p", help="Limitar a provincias (repetible), p. ej. SEVILLA."),
+    ] = None,
+) -> None:
+    """BORME sección A: nombramientos, ceses y otros actos con cargos (unas 50 peticiones/día)."""
+    from osintsuite.indices.builders import indexar_borme
+
+    d, h = _rango(desde, hasta)
+    _ejecutar_indice(lambda http, st: indexar_borme(http, st, d, h, provincia, _p))
+
+
+@indice_app.command("placsp")
+def indice_placsp(
+    paginas: Annotated[
+        int, typer.Option(min=1, max=200, help="Páginas del feed (≈280 anuncios cada una).")
+    ] = 3,
+) -> None:
+    """Adjudicaciones recientes de la Plataforma de Contratación del Sector Público."""
+    from osintsuite.indices.builders import indexar_placsp
+
+    _ejecutar_indice(lambda http, st: indexar_placsp(http, st, paginas, _p))
+
+
+@indice_app.command("indultos")
+def indice_indultos(
+    limite: Annotated[
+        int | None, typer.Option(help="Máximo de indultos a descargar en esta ejecución.")
+    ] = None,
+) -> None:
+    """Indultos 1996-2018 (Civio) con el título del BOE. Reanudable: ~10 600 peticiones en total."""
+    from osintsuite.indices.builders import indexar_indultos
+
+    _ejecutar_indice(lambda http, st: indexar_indultos(http, st, limite, _p))
+
+
+@indice_app.command("locales")
+def indice_locales(
+    datos: Annotated[Path, typer.Option(help="Carpeta data/ del repositorio original.")] = Path(
+        "data"
+    ),
+    incluir_testra: Annotated[
+        bool,
+        typer.Option(
+            "--incluir-testra",
+            help="Importar también los edictos de TESTRA (DNI y matrículas de terceros).",
+        ),
+    ] = False,
+) -> None:
+    """Importa los datasets locales (contratos de Cádiz/Andalucía y PDFs) con pypdf."""
+    from osintsuite.indices.builders import importar_locales
+
+    if not datos.is_dir():
+        raise typer.BadParameter(f"No existe la carpeta {datos}")
+    with runtime() as rt:
+        resumen = importar_locales(rt.indices, datos, incluir_testra, _p)
+        console.print(f"[green]Hecho:[/] {resumen}")
+
+
+@indice_app.command("estado")
+def indice_estado() -> None:
+    """Mostrar qué hay en el índice local."""
+    with runtime() as rt:
+        t = Table(title=f"Índice local · {rt.indices.path}")
+        for col in ("Tabla", "Filas", "Actualizado"):
+            t.add_column(col)
+        for e in rt.indices.estado():
+            t.add_row(e.tabla, str(e.filas), e.actualizado or "—")
+        console.print(t)
+
+
+@app.command("actualizar-wmn")
+def actualizar_wmn() -> None:
+    """Descargar la última versión del dataset de WhatsMyName."""
+    from osintsuite.sources.cuentas import WMN_URL, _cargar_wmn
+
+    async def _go(settings: Settings) -> int:
+        async with HttpClient(settings) as http:
+            r = await http.get(WMN_URL, cache_ttl=0)
+            if not r.ok:
+                raise typer.BadParameter(f"GitHub respondió {r.status}")
+            n = len(r.json()["sites"])
+            (settings.data_dir / "wmn-data.json").write_bytes(r.content)
+            return n
+
+    with runtime() as rt:
+        n = asyncio.run(_go(rt.settings))
+        _cargar_wmn.cache_clear()
+        console.print(f"WhatsMyName actualizado: {n} sitios.")
+
+
 @app.command("limpiar-cache")
 def limpiar_cache() -> None:
     """Vaciar la caché HTTP."""
@@ -418,7 +570,7 @@ def caso_retomar(
 
         async def _go() -> Case:
             async with HttpClient(rt.settings) as http:
-                inv = Investigation(rt.settings, rt.repo, rt.registry, http)
+                inv = Investigation(rt.settings, rt.repo, rt.registry, http, indices=rt.indices)
                 opts = InvestigationOptions(depth=depth or 0, on_progress=_progreso)
                 return await inv.resume(case_id, opts)
 

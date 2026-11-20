@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="{{ generador }}">
+<title>Caso {{ case.id }} · {{ case.target.value }}</title>
+<style>
+  :root {
+    --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1f; --muted: #6b6b70; --line: #e3e3e0;
+    --accent: #1f5fbf; --ok: #2e7d32; --warn: #b26a00; --bad: #c62828; --chip: #eef2fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #151517; --panel: #1f1f22; --text: #ececee; --muted: #a0a0a8; --line: #333338;
+            --accent: #7aa7ff; --ok: #81c784; --warn: #ffb74d; --bad: #ef9a9a; --chip: #2a2f3a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: var(--bg); color: var(--text); }
+  header, main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+  header { border-bottom: 1px solid var(--line); }
+  h1 { font-size: 1.5rem; margin: .2rem 0; }
+  h2 { font-size: 1.15rem; margin: 2rem 0 .6rem; }
+  .muted { color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .card b { display: block; font-size: 1.6rem; }
+  .aviso { border-left: 4px solid var(--warn); background: var(--panel); padding: 10px 14px;
+           border-radius: 6px; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel);
+          border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+  tr:last-child td { border-bottom: 0; }
+  .wrap { overflow-x: auto; }
+  .chip { display: inline-block; background: var(--chip); border-radius: 999px; padding: 1px 8px;
+          font-size: .8rem; white-space: nowrap; }
+  .sens { background: var(--bad); color: #fff; }
+  .bar { height: 6px; border-radius: 3px; background: var(--line); min-width: 60px; }
+  .bar span { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+  #grafo { height: 560px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+  input[type=search] { width: 100%; max-width: 380px; padding: 8px 10px; border-radius: 8px;
+          border: 1px solid var(--line); background: var(--panel); color: var(--text); margin-bottom: 8px; }
+  a { color: var(--accent); word-break: break-word; }
+  code { font-size: .8rem; word-break: break-all; }
+  footer { max-width: 1200px; margin: 2rem auto; padding: 16px; color: var(--muted); font-size: .85rem; }
+</style>
+</head>
+<body>
+<header>
+  <div class="muted">Informe OSINT · caso {{ case.id }}</div>
+  <h1>{{ case.target.value }} <span class="chip">{{ case.target.type.value }}</span></h1>
+  <div><b>Finalidad declarada:</b> {{ case.purpose }}</div>
+  <div class="muted">Inicio {{ case.created_at.strftime("%Y-%m-%d %H:%M UTC") }}
+    {% if case.finished_at %}· fin {{ case.finished_at.strftime("%Y-%m-%d %H:%M UTC") }}{% endif %}
+    · estado {{ case.status.value }} · profundidad {{ case.depth }}</div>
+  <div class="aviso">Los datos proceden de fuentes abiertas y pueden contener errores o
+    referirse a <b>otra persona con el mismo nombre</b>. Comprueba cada hallazgo en su fuente antes
+    de usarlo. Trata este informe como confidencial y bórralo cuando ya no sea necesario
+    (<code>osint caso borrar {{ case.id }}</code>).</div>
+</header>
+<main>
+  <h2>Resumen</h2>
+  <div class="grid">
+    <div class="card"><b>{{ findings|length }}</b>hallazgos</div>
+    <div class="card"><b>{{ entidades|length }}</b>entidades</div>
+    <div class="card"><b>{{ fuentes_ok }}</b>fuentes con resultados</div>
+    <div class="card"><b>{{ fuentes_error }}</b>fuentes con error</div>
+    <div class="card"><b>{{ evidencias|length }}</b>evidencias</div>
+  </div>
+  <p class="muted">Por tipo:
+    {% for tipo, n in por_tipo %}<span class="chip">{{ tipo }}: {{ n }}</span> {% endfor %}</p>
+
+  <h2>Grafo de entidades</h2>
+  <div id="grafo" role="img" aria-label="Grafo de relaciones entre entidades"></div>
+  <p class="muted">Grosor de la arista = confianza combinada de las fuentes. Doble clic en un
+    nodo para centrarlo.</p>
+
+  {% if cronologia %}
+  <h2>Cronología</h2>
+  <div class="wrap"><table>
+    <tr><th>Fecha</th><th>Fuente</th><th>Hecho</th></tr>
+    {% for fecha, f in cronologia %}
+    <tr><td>{{ fecha }}</td><td><span class="chip">{{ f.source }}</span></td>
+        <td>{{ f.title }}{% if f.source_url %} · <a href="{{ f.source_url }}" rel="noopener noreferrer">fuente</a>{% endif %}</td></tr>
+    {% endfor %}
+  </table></div>
+  {% endif %}
+
+  <h2>Hallazgos</h2>
+  <input type="search" id="filtro" placeholder="Filtrar hallazgos…" aria-label="Filtrar hallazgos">
+  <div class="wrap"><table id="tabla">
+    <tr><th>Conf.</th><th>Fuente</th><th>Entidad</th><th>Relación</th><th>Detalle</th></tr>
+    {% for f in findings %}
+    <tr>
+      <td><div class="bar" title="{{ '%.2f'|format(f.confidence) }}"><span style="width: {{ (f.confidence * 100)|round|int }}%"></span></div>
+          <span class="muted">{{ '%.2f'|format(f.confidence) }}</span></td>
+      <td><span class="chip">{{ f.source }}</span></td>
+      <td><span class="chip {% if f.entity.sensitive %}sens{% endif %}">{{ f.entity.type.value }}</span>
+          {{ f.entity.value }}</td>
+      <td>{{ f.relation }}</td>
+      <td><b>{{ f.title }}</b>{% if f.description %}<br><span class="muted">{{ f.description }}</span>{% endif %}
+          {% if f.data.get("ajuste_confianza") %}<br><span class="warn">Ajuste: {{ f.data["ajuste_confianza"] }} (antes {{ f.data["confianza_original"] }})</span>{% endif %}
+          {% if f.data.get("senales") %}<ul>{% for s in f.data["senales"] %}<li><span class="{{ 'ok' if s.puntos > 0 else 'bad' }}">{{ '%+d'|format(s.puntos) }}</span> {{ s.explicacion }}</li>{% endfor %}</ul>{% endif %}
+          {% if f.source_url %}<br><a href="{{ f.source_url }}" rel="noopener noreferrer">{{ f.source_url }}</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+
+  <h2>Fuentes consultadas</h2>
+  <div class="wrap"><table>
+    <tr><th>Fuente</th><th>Entidad</th><th>Estado</th><th>Hallazgos</th><th>Detalle</th></tr>
+    {% for r in case.runs %}
+    <tr><td>{{ r.source }}</td><td>{{ r.target }}</td>
+        <td class="{{ 'ok' if r.status.value == 'ok' else 'bad' if r.status.value in ('error', 'timeout') else 'muted' }}">{{ r.status.value }}</td>
+        <td>{{ r.findings }}</td><td class="muted">{{ r.error or '' }}</td></tr>
+    {% endfor %}
+  </table></div>
+
+  <h2>Anexo: evidencias</h2>
+  {% if evidencias %}
+  <div class="wrap"><table>
+    <tr><th>Fecha (UTC)</th><th>URL</th><th>SHA-256</th><th>Fichero</th></tr>
+    {% for e in evidencias %}
+    <tr><td>{{ e.retrieved_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+        <td><a href="{{ e.url }}" rel="noopener noreferrer">{{ e.url }}</a></td>
+        <td><code>{{ e.sha256 }}</code></td><td><code>{{ e.path or '' }}</code></td></tr>
+    {% endfor %}
+  </table></div>
+  <p class="muted">Las copias están en la carpeta del caso. Para comprobar la integridad, recalcula
+    el SHA-256 del fichero (en Windows: <code>Get-FileHash -Algorithm SHA256 fichero</code>).</p>
+  {% else %}<p class="muted">Sin evidencias guardadas.</p>{% endif %}
+</main>
+<footer>Generado por {{ generador }} el {{ generado }}. Basado en Dante's Gates Minimal Version
+  (Jorge Coronado / Quantika14, GPL-3.0). Grafo: vis-network (Apache-2.0 / MIT).</footer>
+<script type="application/json" id="datos-grafo">{{ grafo|tojson }}</script>
+<script>{{ visjs|safe }}</script>
+<script>
+(function () {
+  var datos = JSON.parse(document.getElementById("datos-grafo").textContent);
+  var colores = {persona: "#e57373", empresa: "#64b5f6", email: "#81c784", telefono: "#ffb74d",
+                 username: "#ba68c8", dominio: "#4db6ac", ip: "#90a4ae", url: "#a1887f",
+                 documento: "#f06292"};
+  function corta(n) {
+    var t = n.label;
+    if (n.type === "url") {
+      try { var u = new URL(t); t = u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname.slice(0, 18) + "…" : ""); }
+      catch (e) { /* no es una URL absoluta */ }
+    }
+    return t.length > 32 ? t.slice(0, 30) + "…" : t;
+  }
+  var nodos = datos.nodes.map(function (n) {
+    return {id: n.id, label: corta(n),
+            title: n.type + ": " + n.label, color: colores[n.type] || "#bdbdbd",
+            shape: n.target ? "star" : "dot", size: n.target ? 26 : 12,
+            borderWidth: n.sensitive ? 3 : 1, font: {color: getComputedStyle(document.body).color}};
+  });
+  var aristas = datos.edges.map(function (e) {
+    return {from: e.source, to: e.target, width: 1 + 5 * e.weight,
+            title: e.relations + " · " + e.sources + " · " + e.weight};
+  });
+  if (window.vis) {
+    var red = new vis.Network(document.getElementById("grafo"),
+      {nodes: new vis.DataSet(nodos), edges: new vis.DataSet(aristas)},
+      {physics: {solver: "forceAtlas2Based",
+                 forceAtlas2Based: {gravitationalConstant: -60, springLength: 120, avoidOverlap: 0.6},
+                 stabilization: {iterations: 300, fit: true}},
+       nodes: {font: {size: 12}}, edges: {color: {opacity: 0.6}, smooth: false},
+       interaction: {hover: true, navigationButtons: true}});
+    red.once("stabilizationIterationsDone", function () { red.fit({animation: false}); red.setOptions({physics: false}); });
+    red.on("doubleClick", function (p) { if (p.nodes.length) red.focus(p.nodes[0], {scale: 1.3, animation: true}); });
+  }
+  var filtro = document.getElementById("filtro");
+  filtro.addEventListener("input", function () {
+    var q = filtro.value.toLowerCase();
+    document.querySelectorAll("#tabla tr:not(:first-child)").forEach(function (tr) {
+      tr.style.display = tr.textContent.toLowerCase().indexOf(q) >= 0 ? "" : "none";
+    });
+  });
+})();
+</script>
+</body>
+</html>
