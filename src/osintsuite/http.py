@@ -23,14 +23,17 @@ import json
 import logging
 import random
 import sqlite3
+import ssl
 import time
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
+import certifi
 import httpx
 
 from osintsuite.config import Settings
@@ -193,6 +196,16 @@ def is_onion(url: str) -> bool:
 # -------------------------------------------------------------- cliente
 
 
+@lru_cache(maxsize=1)
+def _contexto_tls() -> ssl.SSLContext:
+    """Contexto TLS **con verificación** compartido por todos los clientes.
+
+    Crearlo cuesta cargar el almacén de certificados (cientos de ms en Windows), así que se
+    reutiliza en lugar de construir uno por cliente.
+    """
+    return ssl.create_default_context(cafile=certifi.where())
+
+
 class HttpClient:
     """Cliente asíncrono compartido. Úsalo como ``async with HttpClient(settings) as http:``."""
 
@@ -221,7 +234,7 @@ class HttpClient:
             timeout=httpx.Timeout(self.settings.timeout),
             headers={"User-Agent": self.settings.user_agent},
             follow_redirects=False,  # se siguen a mano para validar cada salto
-            verify=True,
+            verify=_contexto_tls(),
             http2=self._transport is None,
             proxy=proxy if self._transport is None else None,
             transport=self._transport,
@@ -297,8 +310,18 @@ class HttpClient:
         params: Mapping[str, str | int] | None = None,
         headers: Mapping[str, str] | None = None,
         cache_ttl: float | None = None,
+        retries: int | None = None,
+        timeout: float | None = None,
     ) -> HttpResponse:
-        return await self.request("GET", url, params=params, headers=headers, cache_ttl=cache_ttl)
+        return await self.request(
+            "GET",
+            url,
+            params=params,
+            headers=headers,
+            cache_ttl=cache_ttl,
+            retries=retries,
+            timeout=timeout,
+        )
 
     async def request(
         self,
@@ -309,8 +332,14 @@ class HttpClient:
         headers: Mapping[str, str] | None = None,
         content: bytes | None = None,
         cache_ttl: float | None = None,
+        retries: int | None = None,
+        timeout: float | None = None,
     ) -> HttpResponse:
-        """Hace la petición con todas las protecciones. No lanza por códigos 4xx/5xx finales."""
+        """Hace la petición con todas las protecciones. No lanza por códigos 4xx/5xx finales.
+
+        ``retries`` y ``timeout`` permiten a una fuente ser menos insistente que la
+        configuración general (p. ej. WhatsMyName consulta cientos de webs: mejor no reintentar).
+        """
         if params:
             url = str(httpx.URL(url, params=dict(params)))
         hdrs = {k.lower(): v for k, v in (headers or {}).items()}
@@ -323,20 +352,26 @@ class HttpClient:
                 log.debug("caché: %s", url)
                 return cached
 
-        response = await self._with_retries(method, url, hdrs, content)
+        response = await self._with_retries(method, url, hdrs, content, retries, timeout)
         if cache is not None and response.status in CACHEABLE_STATUS:
             await cache.set(key, response)
         return response
 
     async def _with_retries(
-        self, method: str, url: str, headers: dict[str, str], content: bytes | None
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str],
+        content: bytes | None,
+        retries: int | None = None,
+        timeout: float | None = None,
     ) -> HttpResponse:
-        intentos = self.settings.max_retries + 1
+        intentos = (self.settings.max_retries if retries is None else retries) + 1
         ultimo_error: Exception | None = None
         for intento in range(intentos):
             response: HttpResponse | None = None
             try:
-                response = await self._follow(method, url, headers, content)
+                response = await self._follow(method, url, headers, content, timeout)
             except (httpx.TransportError, httpx.DecodingError) as exc:
                 ultimo_error = exc
                 log.debug("intento %d/%d fallido para %s: %s", intento + 1, intentos, url, exc)
@@ -357,12 +392,17 @@ class HttpClient:
         return float(base + random.uniform(0, base / 2))  # noqa: S311 - jitter, no criptografía
 
     async def _follow(
-        self, method: str, url: str, headers: dict[str, str], content: bytes | None
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str],
+        content: bytes | None,
+        timeout: float | None = None,
     ) -> HttpResponse:
         actual = url
         for _ in range(MAX_REDIRECTS + 1):
             await self.check_url(actual)
-            response = await self._send(method, actual, headers, content)
+            response = await self._send(method, actual, headers, content, timeout)
             location = response.headers.get("location")
             if response.status in {301, 302, 303, 307, 308} and location:
                 actual = urljoin(actual, location)
@@ -373,7 +413,12 @@ class HttpClient:
         raise HttpError(f"Demasiadas redirecciones desde {url}")
 
     async def _send(
-        self, method: str, url: str, headers: dict[str, str], content: bytes | None
+        self,
+        method: str,
+        url: str,
+        headers: dict[str, str],
+        content: bytes | None,
+        timeout: float | None = None,
     ) -> HttpResponse:
         client = self._client_for(url)
         limiter = self._limiter(url)
@@ -381,7 +426,10 @@ class HttpClient:
             await limiter.wait_turn()
             inicio = time.monotonic()
             log.debug("%s %s", method, url)
-            async with client.stream(method, url, headers=headers, content=content) as r:
+            limite = httpx.Timeout(timeout) if timeout else httpx.USE_CLIENT_DEFAULT
+            async with client.stream(
+                method, url, headers=headers, content=content, timeout=limite
+            ) as r:
                 cuerpo = bytearray()
                 async for chunk in r.aiter_bytes():
                     cuerpo.extend(chunk)

@@ -1,5 +1,5 @@
 """Fuentes de información (plugins)."""
 
-from osintsuite.sources.base import Source, SourceContext, SourceRegistry
+from osintsuite.sources.base import Source, SourceContext, SourceRegistry, SourceSkipped
 
-__all__ = ["Source", "SourceContext", "SourceRegistry"]
+__all__ = ["Source", "SourceContext", "SourceRegistry", "SourceSkipped"]

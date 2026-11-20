@@ -22,9 +22,11 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 
 from osintsuite.config import Settings
-from osintsuite.correlation import merge_findings
+from osintsuite.correlation import ajustar_por_frecuencia, merge_findings
+from osintsuite.dnsutil import DnsResolver
 from osintsuite.evidence import EvidenceStore
 from osintsuite.http import HttpClient, HttpError
+from osintsuite.indices import IndexStore
 from osintsuite.logs import case_logger
 from osintsuite.models import (
     PIVOTABLE_TYPES,
@@ -36,7 +38,7 @@ from osintsuite.models import (
     SourceStatus,
     utcnow,
 )
-from osintsuite.sources.base import Source, SourceContext, SourceRegistry
+from osintsuite.sources.base import Source, SourceContext, SourceRegistry, SourceSkipped
 from osintsuite.storage.base import Repository
 
 log = logging.getLogger("osintsuite.investigacion")
@@ -68,11 +70,16 @@ class Investigation:
         repository: Repository,
         registry: SourceRegistry,
         http: HttpClient,
+        *,
+        indices: IndexStore | None = None,
+        dns: DnsResolver | None = None,
     ) -> None:
         self.settings = settings
         self.repo = repository
         self.registry = registry
         self.http = http
+        self.indices = indices
+        self.dns = dns or DnsResolver(timeout=min(settings.timeout, 10.0))
         self.evidence = EvidenceStore(settings.cases_dir)
 
     # ------------------------------------------------------------ API
@@ -92,6 +99,8 @@ class Investigation:
         self.repo.create_case(case)
         estado = _Estado(case=case, vistos={target.key})
         for nombre, motivo in descartadas.items():
+            if not self.registry.get(nombre).accepts(target):
+                continue  # no aplica a este tipo de objetivo: no se registra
             self._registrar(
                 estado,
                 SourceRun(
@@ -155,6 +164,10 @@ class Investigation:
                 if nivel == options.depth:
                     break
                 pendientes = self._siguientes(estado, nuevos, options)
+            ajustados = ajustar_por_frecuencia(case)
+            if ajustados:
+                self.repo.add_findings(case.id, case.findings)  # guarda la confianza ajustada
+                clog.info("Confianza ajustada por frecuencia del nombre en %d hallazgos", ajustados)
             # En la base de datos quedan los hallazgos en bruto; al caso devuelto se le
             # entregan ya deduplicados (la deduplicación es reproducible: ver correlation).
             case.findings = merge_findings(case.findings)
@@ -209,18 +222,22 @@ class Investigation:
             case_id=estado.case.id,
             log=clog.getChild(source.name),
             depth=nivel,
+            dns=self.dns,
+            indices=self.indices,
         )
         run = SourceRun(source=source.name, target=entidad.key, status=SourceStatus.OK, depth=nivel)
         inicio = time.monotonic()
+        limite = source.timeout or self.settings.source_timeout
         findings: list[Finding] = []
         try:
-            findings = await asyncio.wait_for(
-                source.run(entidad, ctx), timeout=self.settings.source_timeout
-            )
+            findings = await asyncio.wait_for(source.run(entidad, ctx), timeout=limite)
             run.status = SourceStatus.OK if findings else SourceStatus.EMPTY
         except TimeoutError:
             run.status = SourceStatus.TIMEOUT
-            run.error = f"superó {self.settings.source_timeout:.0f} s"
+            run.error = f"superó {limite:.0f} s"
+        except SourceSkipped as exc:
+            run.status = SourceStatus.SKIPPED
+            run.error = str(exc)
         except HttpError as exc:
             run.status = SourceStatus.FAILED
             run.error = f"red: {exc}"

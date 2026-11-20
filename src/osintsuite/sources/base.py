@@ -12,16 +12,18 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib.metadata import entry_points
 from typing import TYPE_CHECKING, ClassVar
 
+from osintsuite.dnsutil import DnsResolver
 from osintsuite.models import Entity, EntityType, Finding
 
 if TYPE_CHECKING:
     from osintsuite.config import Settings
     from osintsuite.evidence import EvidenceStore
     from osintsuite.http import HttpClient
+    from osintsuite.indices import IndexStore
 
 ENTRY_POINT_GROUP = "osintsuite.sources"
 
@@ -36,6 +38,19 @@ class SourceContext:
     case_id: str
     log: logging.Logger
     depth: int = 0
+    dns: DnsResolver = field(default_factory=DnsResolver)
+    indices: IndexStore | None = None
+
+    def index(self) -> IndexStore:
+        """Índice local (BOE, BORME, contratos…). Lanza :class:`SourceSkipped` si no existe."""
+        if self.indices is None:
+            raise SourceSkipped("no hay índice local: ejecuta `osint indice --help`")
+        return self.indices
+
+
+class SourceSkipped(Exception):
+    """La fuente no puede ejecutarse ahora (p. ej. índice sin construir). Se registra como
+    «omitida» con el motivo, no como error."""
 
 
 class Source(ABC):
@@ -51,6 +66,8 @@ class Source(ABC):
     sensitive: ClassVar[bool] = False
     #: No hace peticiones de red (útil para tests y modo sin conexión).
     offline: ClassVar[bool] = False
+    #: Tiempo máximo propio (segundos); ``None`` usa ``Settings.source_timeout``.
+    timeout: ClassVar[float | None] = None
 
     def accepts(self, entity: Entity) -> bool:
         return entity.type in self.input_types
