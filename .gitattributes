@@ -13,3 +13,9 @@
 *.rar binary
 *.png binary
 *.jpg binary
+Dockerfile text eol=lf
+.dockerignore text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.tsv text eol=lf
+*.lock text eol=lf
