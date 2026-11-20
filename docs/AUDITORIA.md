@@ -298,3 +298,23 @@ Hacer scraping de Google, Facebook, Instagram, LinkedIn o X va contra sus condic
 - Las palabras clave de fact-checking y corrupción (`config.FC_*`) como heurísticas explicables.
 - La lógica de clasificar los resultados en prensa, redes sociales y otros.
 - El parseo de la ficha de Wikipedia, sustituido por Wikidata.
+
+---
+
+## 10. Addenda (Fase 3, 20/11/2026)
+
+Hallazgos nuevos al implementar y probar en vivo las fuentes:
+
+- **Mojeek** también ha dejado de poder usarse por scraping: ahora responde con un reto
+  JavaScript («JavaScript is required to complete this challenge»). Solo queda su API oficial
+  (con clave).
+- **La API de datos abiertos del BOE** exige la cabecera `Accept` (sin ella responde 400).
+  La sección A del BORME tiene **versión XML estructurada** (`diario_borme/xml.php`), mucho más
+  fiable que extraer el texto de los PDF.
+- **PLACSP**: el feed Atom pesa unos 7 MB por página (≈280 anuncios) y tarda unos 20-30 s.
+- **Algunos medios** (p. ej. El País) responden 403 a clientes que se identifican como
+  herramienta. En vez de falsear el User-Agent se usa la copia de la Wayback Machine.
+- **CSV de Civio**: 21 filas tienen comillas mal cerradas y el campo `delito` se parte en
+  varias columnas. Se reparan al unificar.
+- **Bug del original en el INE**: `replace_acentos` convertía la «Ñ» en «N» y consultaba
+  la fila equivocada (MUNOZ: 150 personas, frente a MUÑOZ: más de 100 000).

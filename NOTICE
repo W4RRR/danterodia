@@ -21,6 +21,20 @@ Datos de terceros incluidos en data/ y legacy/:
 - data/Adjudicaciones: datos públicos de contratación (Diputación de Cádiz,
   Comunidad de Madrid, Ayuntamientos de Málaga y Sevilla, Junta de Andalucía).
 
+Datos y librerías de terceros incluidos en el paquete (src/osintsuite/data/):
+- ine/: copia de data/spanish-names-master (frecuencias del INE).
+- civio_indultos_1996-2018.csv: unión de los 20 CSV de legacy/bots/BOE/civio (Civio,
+  El Indultómetro, https://civio.es/el-indultometro/). 21 filas con comillas mal cerradas
+  se repararon al unificarlas.
+- politicos_casos_judiciales_2019.tsv: copia de data/Corruptos (Wikipedia, CC BY-SA 4.0).
+- prensa_es.txt: data/newspaper/spain-newspaper.txt + medios de legacy/bots/Scraper-news.
+- wmn-data.json: WhatsMyName (https://github.com/WebBreacher/WhatsMyName),
+  Copyright (C) 2015-2026 Micah Hoffman, licencia CC BY-SA 4.0.
+- email_desechables.txt: disposable-email-domains
+  (https://github.com/disposable-email-domains/disposable-email-domains), CC0 1.0.
+- vendor/vis-network.min.js: vis-network 9.1.9 (https://visjs.github.io/vis-network/),
+  (c) Almende B.V. y colaboradores de visjs, licencia Apache-2.0 o MIT.
+
 Componentes de terceros que permanecen en legacy/ (solo referencia, no se usan):
 - legacy/bots/Tor_Spider: basado en ConanKapoor/TorScrapper (Abhishek Singh).
 - legacy/bots/Scraper-news: basado en g4lk/TrabajoFinGrado.

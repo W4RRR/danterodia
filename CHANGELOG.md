@@ -5,6 +5,68 @@ explica **qué** cambió y **por qué**, comparado con el original de Quantika14
 
 ## [Sin publicar] — 2.0.0.dev0
 
+### Fase 3 — Capacidades
+
+Todas las fuentes se han probado **en vivo** el 20/11/2026 con objetivos no personales
+(example.com, 8.8.8.8, la organización «github», Miguel de Cervantes, empresas del BORME) y
+tienen tests sin conexión con respuestas reales recortadas o sintéticas.
+
+#### Añadido: fuentes (29, activables por configuración)
+- **Índice local** (`osint indice boe|borme|placsp|indultos|locales|estado`), en SQLite FTS5.
+  *Por qué*: la API del BOE no busca por nombre. El original hacía fuerza bruta de IDs
+  (millones de peticiones) y lo guardaba en MongoDB; ahora se usan los sumarios oficiales de
+  forma incremental, sin repetir días ya descargados.
+  - `boe`: títulos de todas las disposiciones (API de datos abiertos).
+  - `borme`: **cargos societarios** (nombramientos, ceses, reelecciones…) desde el XML
+    estructurado de la sección A. Sustituye a LibreBORME (API v1 retirada, HTTP 410).
+  - `contratacion`: adjudicaciones de **PLACSP** (feed CODICE) y de los datasets locales de
+    Cádiz y Andalucía. Busca por CIF (exacto) o por nombre.
+  - `indultos` (sensible): Civio + título del Real Decreto en el BOE, que incluye el nombre.
+  - `documentos_locales`: los PDF de `data/` con **pypdf** (sustituye a `pdfgrep`). Los
+    edictos de TESTRA solo se importan con `--incluir-testra` y se marcan como sensibles.
+- **Personas y empresas**: `ine`, `wikidata` (identidad, fechas, cargos, cuentas y web
+  oficiales; sin religión, y la ideología solo con `--sensibles`), `identificadores`
+  (CIF/DNI/NIE con dígito de control), `politicos_judicial` (sensible), `prensa`
+  (DuckDuckGo News + **newspaper4k**, deduplicada).
+- **Nick**: `whatsmyname` (≈690 webs, actualizable con `osint actualizar-wmn`). Exige
+  **código HTTP y texto** esperados, así que no da por bueno un 200 genérico, que era el falso
+  positivo del original.
+- **Email**: `email` (sintaxis, desechable, proveedor, alias para pivotar), `dns` (MX, SPF,
+  DMARC, DKIM, ¿suplantable?), `gravatar`, `pgp`, `hibp` y `emailrep` (con clave).
+- **Teléfono**: `telefono` (phonenumbers: validez, tipo, operador original, zona horaria) y
+  dorks con todas las variantes de formato.
+- **Dominio/IP**: `rdap` (sucesor de WHOIS), `dns`, `crtsh` (subdominios por Certificate
+  Transparency), `wayback`, `tecnologias` (huellas explicables), `ipinfo` + PTR, y
+  `shodan`/`censys` con clave.
+- **Buscadores**: `buscadores` con dorks en plantillas editables (`dorks.toml`), DuckDuckGo
+  (`ddgs`) y, si hay clave, Brave, Google CSE y la API de Mojeek. Filtra anuncios y
+  resultados que no contienen el objetivo.
+- **Noticias**: `verificar_noticia` con corroboración en otros medios (TF-IDF + rapidfuzz),
+  verificadores españoles (Maldita, Newtral, EFE Verifica, RTVE Verifica), Google Fact Check
+  (con clave) y una **puntuación de 0 a 100 explicada señal a señal**.
+
+#### Añadido: correlación e informes
+- **Ajuste de confianza por frecuencia del nombre** (INE): una coincidencia solo por nombre
+  se multiplica por `1/(1+log10(N))`. Queda registrado el valor original y el motivo.
+- **Informe HTML autocontenido**: resumen, grafo interactivo (vis-network embebido, sin CDN),
+  cronología, hallazgos filtrables, señales de verificación y anexo de evidencias con SHA-256.
+  Usa autoescape, así que el contenido de terceros no puede ejecutar código en el informe.
+
+#### Cambiado
+- `HttpClient` admite reintentos y timeout por petición. WhatsMyName pasa de 4 min a 1 min
+  con los mismos resultados.
+- Un único contexto TLS compartido (sigue verificando certificados): los tests pasan de
+  201 s a 21 s.
+- Las fuentes pueden marcarse como **omitidas** con un motivo (p. ej. «índice vacío:
+  ejecuta …») en lugar de fallar.
+- `newspaper3k` → `newspaper4k`; `pydns`/`py3DNS` → `dnspython`; `validate_email` /
+  `py3-validate-email` → `email-validator` (sin sondeo SMTP); `wikipedia`/`wikipedia-api` →
+  API de Wikidata; scraping de buscadores → `ddgs` + APIs oficiales.
+
+#### Retirado (sin sustituto, por estar muertos)
+- Scraping de Google, Bing (su API se retiró en agosto de 2025), Dogpile, Yahoo, Startpage,
+  Torch (onion v2) y Mojeek HTML; hemeroteca de ABC; Páginas Amarillas (anti-bots).
+
 ### Fase 2 — Nueva arquitectura
 
 #### Añadido
