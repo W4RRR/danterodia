@@ -1,0 +1,87 @@
+{
+ "searchinfo": {
+  "search": "Miguel de Cervantes"
+ },
+ "search": [
+  {
+   "id": "Q5682",
+   "title": "Q5682",
+   "pageid": 6744,
+   "concepturi": "http://www.wikidata.org/entity/Q5682",
+   "repository": "wikidata",
+   "url": "//www.wikidata.org/wiki/Q5682",
+   "display": {
+    "label": {
+     "value": "Miguel de Cervantes",
+     "language": "es"
+    },
+    "description": {
+     "value": "escritor español",
+     "language": "es"
+    }
+   },
+   "label": "Miguel de Cervantes",
+   "description": "escritor español",
+   "match": {
+    "type": "label",
+    "language": "es",
+    "text": "Miguel de Cervantes"
+   }
+  },
+  {
+   "id": "Q3396067",
+   "title": "Q3396067",
+   "pageid": 3236171,
+   "concepturi": "http://www.wikidata.org/entity/Q3396067",
+   "repository": "wikidata",
+   "url": "//www.wikidata.org/wiki/Q3396067",
+   "display": {
+    "label": {
+     "value": "Miguel de Cervantes",
+     "language": "es"
+    },
+    "description": {
+     "value": "crucero",
+     "language": "es"
+    }
+   },
+   "label": "Miguel de Cervantes",
+   "description": "crucero",
+   "match": {
+    "type": "label",
+    "language": "es",
+    "text": "Miguel de Cervantes"
+   }
+  },
+  {
+   "id": "Q85687119",
+   "title": "Q85687119",
+   "pageid": 84963891,
+   "concepturi": "http://www.wikidata.org/entity/Q85687119",
+   "repository": "wikidata",
+   "url": "//www.wikidata.org/wiki/Q85687119",
+   "display": {
+    "label": {
+     "value": "Biblioteca Pública Municipal de Zaragoza - Miguel de Cervantes (Universidad)",
+     "language": "es"
+    },
+    "description": {
+     "value": "biblioteca en España",
+     "language": "es"
+    }
+   },
+   "label": "Biblioteca Pública Municipal de Zaragoza - Miguel de Cervantes (Universidad)",
+   "description": "biblioteca en España",
+   "match": {
+    "type": "alias",
+    "language": "es",
+    "text": "Miguel de Cervantes"
+   },
+   "aliases": [
+    "Miguel de Cervantes"
+   ]
+  }
+ ],
+ "search-continue": 3,
+ "success": 1
+}
