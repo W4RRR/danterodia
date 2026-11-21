@@ -3,7 +3,7 @@
 - Siempre: con ``mongomock`` (Mongo simulado en memoria).
 - Además, contra un MongoDB real si se define ``TEST_MONGO_URL``, por ejemplo con
   ``docker compose --profile mongo up -d mongo`` y
-  ``TEST_MONGO_URL=mongodb://localhost:27017/osintsuite_test``.
+  ``TEST_MONGO_URL=mongodb://localhost:27017/danterodia_test``.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from datetime import timedelta
 import mongomock
 import pytest
 
-from osintsuite.models import (
+from danterodia.models import (
     Case,
     CaseStatus,
     Entity,
@@ -25,8 +25,8 @@ from osintsuite.models import (
     SourceStatus,
     utcnow,
 )
-from osintsuite.storage import Repository, diff_cases, open_repository
-from osintsuite.storage.mongo import MongoRepository
+from danterodia.storage import Repository, diff_cases, open_repository
+from danterodia.storage.mongo import MongoRepository
 
 URL_REAL = os.environ.get("TEST_MONGO_URL")
 
@@ -35,7 +35,7 @@ URL_REAL = os.environ.get("TEST_MONGO_URL")
 def repo(request: pytest.FixtureRequest) -> Iterator[Repository]:
     if request.param == "mongomock":
         r = MongoRepository(
-            "mongodb://simulado/osintsuite_test", client=mongomock.MongoClient(tz_aware=True)
+            "mongodb://simulado/danterodia_test", client=mongomock.MongoClient(tz_aware=True)
         )
     else:
         if not URL_REAL:

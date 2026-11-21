@@ -1,0 +1,56 @@
+# Plantillas de dorks por tipo de objetivo.
+#
+# Variables disponibles:
+#   todas:     {valor}
+#   telefono:  {e164} (+34600112233), {nacional} (600 11 22 33), {compacto} (600112233)
+#   email:     {usuario}, {dominio}
+#   persona:   {nombre}, {apellidos}
+#
+# Para personalizarlas, copia este fichero a <DANTERODIA_DATA_DIR>/dorks.toml y edítalo:
+# las secciones que definas sustituyen a estas.
+
+[persona]
+plantillas = [
+  '"{valor}"',
+  '"{valor}" filetype:pdf',
+  '"{valor}" (site:boe.es OR site:borme.es)',
+  '"{valor}" (site:linkedin.com/in OR site:twitter.com OR site:x.com)',
+  '"{valor}" (curriculum OR CV OR "currículum")',
+]
+
+[empresa]
+plantillas = [
+  '"{valor}"',
+  '"{valor}" (CIF OR NIF)',
+  '"{valor}" (adjudicación OR licitación OR contrato)',
+  '"{valor}" filetype:pdf',
+  '"{valor}" site:linkedin.com/company',
+]
+
+[username]
+plantillas = [
+  '"{valor}"',
+  '"@{valor}"',
+  'inurl:"{valor}" (perfil OR profile OR user)',
+]
+
+[email]
+plantillas = [
+  '"{valor}"',
+  '"{usuario}" "{dominio}"',
+  '"{valor}" filetype:pdf',
+]
+
+[telefono]
+plantillas = [
+  '"{e164}" OR "{nacional}" OR "{compacto}"',
+  '"{nacional}" (site:milanuncios.com OR site:wallapop.com OR site:idealista.com)',
+  '"{compacto}" (spam OR estafa OR "quién llama")',
+]
+
+[dominio]
+plantillas = [
+  'site:{valor}',
+  'site:{valor} filetype:pdf',
+  '"{valor}" -site:{valor}',
+]

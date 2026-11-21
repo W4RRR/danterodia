@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from osintsuite.identifiers import (
+from danterodia.identifiers import (
     anonimizar_documento,
     coincide_nombre,
     extraer,

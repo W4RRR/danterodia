@@ -11,14 +11,14 @@ import respx
 from pydantic import SecretStr
 from typer.testing import CliRunner
 
-from osintsuite import search
-from osintsuite.cli import app
-from osintsuite.http import HttpClient, HttpError
-from osintsuite.models import Case, Entity, EntityType, Evidence, Finding
-from osintsuite.reports import to_html
-from osintsuite.search import SearchResult, cargar_dorks, render_dorks
-from osintsuite.sources import SourceContext
-from osintsuite.sources.web import (
+from danterodia import search
+from danterodia.cli import app
+from danterodia.http import HttpClient, HttpError
+from danterodia.models import Case, Entity, EntityType, Evidence, Finding
+from danterodia.reports import to_html
+from danterodia.search import SearchResult, cargar_dorks, render_dorks
+from danterodia.sources import SourceContext
+from danterodia.sources.web import (
     Articulo,
     Buscadores,
     Prensa,
@@ -418,8 +418,8 @@ runner = CliRunner()
 
 @pytest.fixture
 def entorno(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
-    monkeypatch.setenv("OSINT_DATA_DIR", str(tmp_path / "datos"))
-    monkeypatch.setenv("OSINT_PER_DOMAIN_INTERVAL", "0")
+    monkeypatch.setenv("DANTERODIA_DATA_DIR", str(tmp_path / "datos"))
+    monkeypatch.setenv("DANTERODIA_PER_DOMAIN_INTERVAL", "0")
     monkeypatch.setenv("COLUMNS", "200")
     return tmp_path
 
@@ -443,7 +443,7 @@ def test_cli_indices(entorno: Path) -> None:
     )
     assert r.exit_code == 0
 
-    from osintsuite.indices.builders import PLACSP_FEED
+    from danterodia.indices.builders import PLACSP_FEED
 
     respx.get(PLACSP_FEED).mock(return_value=httpx.Response(500))
     assert runner.invoke(app, ["indice", "placsp", "--paginas", "1"]).exit_code == 0
@@ -468,7 +468,7 @@ def test_cli_indices(entorno: Path) -> None:
 
 @respx.mock
 def test_cli_actualizar_wmn(entorno: Path) -> None:
-    from osintsuite.sources.cuentas import WMN_URL
+    from danterodia.sources.cuentas import WMN_URL
 
     respx.get(WMN_URL).mock(return_value=httpx.Response(200, json={"sites": [{"name": "x"}]}))
     r = runner.invoke(app, ["actualizar-wmn"])

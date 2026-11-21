@@ -9,9 +9,9 @@ from pathlib import Path
 import httpx
 import respx
 
-from osintsuite.http import HttpClient
-from osintsuite.indices import IndexStore, fts_query
-from osintsuite.indices.builders import (
+from danterodia.http import HttpClient
+from danterodia.indices import IndexStore, fts_query
+from danterodia.indices.builders import (
     es_empresa,
     importar_locales,
     indexar_boe,
@@ -143,7 +143,7 @@ async def test_indexar_borme(http: HttpClient, indices: IndexStore) -> None:
 @respx.mock
 async def test_indexar_placsp_sigue_paginas(http: HttpClient, indices: IndexStore) -> None:
     contenido = (FIXTURES / "placsp_sintetico.atom").read_bytes()
-    from osintsuite.indices.builders import PLACSP_FEED
+    from danterodia.indices.builders import PLACSP_FEED
 
     respx.get(PLACSP_FEED).mock(return_value=httpx.Response(200, content=contenido))
     segunda = respx.get("https://contrataciondelsectorpublico.gob.es/feed_2.atom").mock(

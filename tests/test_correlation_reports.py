@@ -8,9 +8,9 @@ from pathlib import Path
 import networkx as nx
 import pytest
 
-from osintsuite.correlation import build_graph, combine, merge_findings
-from osintsuite.models import Case, Entity, EntityType, Evidence, Finding
-from osintsuite.reports import EXPORTERS, export, json_schema, to_csv, to_json, to_markdown
+from danterodia.correlation import build_graph, combine, merge_findings
+from danterodia.models import Case, Entity, EntityType, Evidence, Finding
+from danterodia.reports import EXPORTERS, export, json_schema, to_csv, to_json, to_markdown
 
 H1, H2 = "a" * 64, "b" * 64
 

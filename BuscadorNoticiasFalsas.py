@@ -1,7 +1,7 @@
 """Envoltorio de compatibilidad con Dante's Gates Minimal Version (Quantika14).
 
 Antes: `python BuscadorNoticiasFalsas.py`. Ahora equivale a la nueva CLI; el script original está en
-`legacy/BuscadorNoticiasFalsas.py`. Para más opciones usa directamente `osint --help`.
+`legacy/BuscadorNoticiasFalsas.py`. Para más opciones usa directamente `danterodia --help`.
 """
 
 import sys
@@ -9,8 +9,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
-from osintsuite.cli import legacy_main
-from osintsuite.models import EntityType
+from danterodia.cli import legacy_main
+from danterodia.models import EntityType
 
 if __name__ == "__main__":
     legacy_main(EntityType.URL, "URL de la noticia")

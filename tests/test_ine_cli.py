@@ -6,9 +6,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from osintsuite.cli import app
-from osintsuite.models import Entity, EntityType
-from osintsuite.sources.ine import clave, estimar, separar_nombre, tablas
+from danterodia.cli import app
+from danterodia.models import Entity, EntityType
+from danterodia.sources.ine import clave, estimar, separar_nombre, tablas
 
 runner = CliRunner()
 
@@ -55,15 +55,15 @@ def test_estimar() -> None:
 
 @pytest.fixture
 def entorno(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
-    monkeypatch.setenv("OSINT_DATA_DIR", str(tmp_path / "datos"))
-    monkeypatch.setenv("OSINT_HIBP_API_KEY", "no-mostrar-esto")
+    monkeypatch.setenv("DANTERODIA_DATA_DIR", str(tmp_path / "datos"))
+    monkeypatch.setenv("DANTERODIA_HIBP_API_KEY", "no-mostrar-esto")
     monkeypatch.setenv("COLUMNS", "250")  # que Rich no recorte las tablas
     return tmp_path
 
 
 def test_cli_flujo_completo(entorno: Path) -> None:
     r = runner.invoke(app, ["version"])
-    assert r.exit_code == 0 and "osintsuite" in r.stdout
+    assert r.exit_code == 0 and "danterodia" in r.stdout
 
     r = runner.invoke(app, ["fuentes"])
     assert r.exit_code == 0 and "ine" in r.stdout

@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from osintsuite.correlation import ajustar_por_frecuencia, factor_frecuencia
-from osintsuite.indices import IndexStore
-from osintsuite.models import Case, Entity, EntityType, Finding
-from osintsuite.sources import SourceContext, SourceSkipped
-from osintsuite.sources.ine import IneFrecuencia, separar_nombre
-from osintsuite.sources.offline import (
+from danterodia.correlation import ajustar_por_frecuencia, factor_frecuencia
+from danterodia.indices import IndexStore
+from danterodia.models import Case, Entity, EntityType, Finding
+from danterodia.sources import SourceContext, SourceSkipped
+from danterodia.sources.ine import IneFrecuencia, separar_nombre
+from danterodia.sources.offline import (
     EmailBasico,
     Identificadores,
     PoliticosCasosJudiciales,
@@ -17,7 +17,7 @@ from osintsuite.sources.offline import (
     dominios_desechables,
     lista_politicos,
 )
-from osintsuite.sources.oficiales import Boe, Borme, Contratacion, DocumentosLocales, Indultos
+from danterodia.sources.oficiales import Boe, Borme, Contratacion, DocumentosLocales, Indultos
 
 
 def P(valor: str, **attrs: object) -> Entity:
@@ -241,5 +241,5 @@ async def test_fuentes_de_indice(ctx: SourceContext, indices: IndexStore) -> Non
 
 async def test_sin_indice(ctx: SourceContext) -> None:
     ctx.indices = None
-    with pytest.raises(SourceSkipped, match="osint indice"):
+    with pytest.raises(SourceSkipped, match="danterodia indice"):
         await Boe().run(P("Ana Pérez"), ctx)

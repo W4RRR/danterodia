@@ -1,27 +1,27 @@
 # Uso básico (SQLite en ./datos):
 #   docker compose build
-#   docker compose run --rm osint persona "Nombre Apellido" -f "Finalidad" -r html -o /trabajo/informes
+#   docker compose run --rm danterodia persona "Nombre Apellido" -f "Finalidad" -r html -o /trabajo/informes
 #
 # Con MongoDB (perfil opcional):
 #   docker compose --profile mongo up -d mongo
-#   OSINT_DATABASE_URL=mongodb://mongo:27017/osintsuite docker compose --profile mongo run --rm osint caso listar
+#   DANTERODIA_DATABASE_URL=mongodb://mongo:27017/danterodia docker compose --profile mongo run --rm danterodia caso listar
 #
 # Las claves de API se leen de .env (copia .env.example). Nunca las pongas en este fichero.
 
 services:
-  osint:
+  danterodia:
     build: .
-    image: osintsuite:latest
+    image: danterodia:latest
     env_file:
       - path: .env
         required: false
     environment:
-      OSINT_DATA_DIR: /datos
-      OSINT_DATABASE_URL: ${OSINT_DATABASE_URL:-}
+      DANTERODIA_DATA_DIR: /datos
+      DANTERODIA_DATABASE_URL: ${DANTERODIA_DATABASE_URL:-}
     volumes:
       - ./datos:/datos                       # base de datos, caché, índice y casos
       - ./informes:/trabajo/informes         # informes generados
-      - ./data:/trabajo/data:ro              # datasets originales (osint indice locales)
+      - ./data:/trabajo/data:ro              # datasets originales (danterodia indice locales)
     stdin_open: true
     tty: true
 

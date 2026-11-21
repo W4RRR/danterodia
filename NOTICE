@@ -21,7 +21,7 @@ Datos de terceros incluidos en data/ y legacy/:
 - data/Adjudicaciones: datos públicos de contratación (Diputación de Cádiz,
   Comunidad de Madrid, Ayuntamientos de Málaga y Sevilla, Junta de Andalucía).
 
-Datos y librerías de terceros incluidos en el paquete (src/osintsuite/data/):
+Datos y librerías de terceros incluidos en el paquete (src/danterodia/data/):
 - ine/: copia de data/spanish-names-master (frecuencias del INE).
 - civio_indultos_1996-2018.csv: unión de los 20 CSV de legacy/bots/BOE/civio (Civio,
   El Indultómetro, https://civio.es/el-indultometro/). 21 filas con comillas mal cerradas

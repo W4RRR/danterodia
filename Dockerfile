@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
 #
-# Imagen de osintsuite en dos etapas:
+# Imagen de danterodia en dos etapas:
 #   1. «build»: instala las dependencias EXACTAS de uv.lock en un entorno virtual.
 #   2. final: solo copia ese entorno a una imagen limpia y ejecuta como usuario sin privilegios.
 #
-# Uso:  docker build -t osintsuite .
-#       docker run --rm -v "$PWD/datos:/datos" osintsuite dominio example.com -f "Mi finalidad"
+# Uso:  docker build -t danterodia .
+#       docker run --rm -v "$PWD/datos:/datos" danterodia dominio example.com -f "Mi finalidad"
 
 ARG PYTHON_VERSION=3.12
 
@@ -24,20 +24,20 @@ COPY src ./src
 RUN uv sync --no-dev --extra mongo --no-editable
 
 FROM python:${PYTHON_VERSION}-slim
-LABEL org.opencontainers.image.title="osintsuite" \
+LABEL org.opencontainers.image.title="danterodia" \
       org.opencontainers.image.description="OSINT con fuentes españolas (basado en Dante's Gates de Quantika14)" \
       org.opencontainers.image.licenses="GPL-3.0-only" \
       org.opencontainers.image.source="https://github.com/Quantika14/osint-suite-tools"
-RUN useradd --create-home --uid 10001 osint \
+RUN useradd --create-home --uid 10001 danterodia \
     && mkdir -p /datos /trabajo \
-    && chown osint:osint /datos /trabajo
+    && chown danterodia:danterodia /datos /trabajo
 COPY --from=build /opt/venv /opt/venv
 ENV PATH=/opt/venv/bin:$PATH \
     PYTHONUTF8=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    OSINT_DATA_DIR=/datos
-USER osint
+    DANTERODIA_DATA_DIR=/datos
+USER danterodia
 WORKDIR /trabajo
 VOLUME ["/datos"]
-ENTRYPOINT ["osint"]
+ENTRYPOINT ["danterodia"]
 CMD ["--help"]

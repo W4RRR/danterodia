@@ -16,14 +16,14 @@ from typing import Any
 
 import pytest
 
-from osintsuite import search
-from osintsuite.config import Settings
-from osintsuite.dnsutil import DnsResolver
-from osintsuite.evidence import EvidenceStore
-from osintsuite.http import HttpClient
-from osintsuite.indices import IndexStore
-from osintsuite.sources import SourceContext
-from osintsuite.storage import SQLiteRepository
+from danterodia import search
+from danterodia.config import Settings
+from danterodia.dnsutil import DnsResolver
+from danterodia.evidence import EvidenceStore
+from danterodia.http import HttpClient
+from danterodia.indices import IndexStore
+from danterodia.sources import SourceContext
+from danterodia.storage import SQLiteRepository
 
 PUBLIC_IP = "93.184.215.14"
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -59,12 +59,12 @@ class FakeDns(DnsResolver):
 
 @pytest.fixture(autouse=True)
 def _aislar_entorno(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
-    """Ninguna prueba lee el .env del usuario, variables OSINT_* reales ni la red."""
+    """Ninguna prueba lee el .env del usuario, variables DANTERODIA_* reales ni la red."""
     for key in list(os.environ):
-        if key.startswith("OSINT_"):
+        if key.startswith("DANTERODIA_"):
             monkeypatch.delenv(key)
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr("osintsuite.http.system_resolver", fake_resolver)
+    monkeypatch.setattr("danterodia.http.system_resolver", fake_resolver)
     monkeypatch.setattr(search, "_ddg_sync", lambda *a, **k: [])
     monkeypatch.setattr(search._ritmo_ddg, "intervalo", 0.0)
 
@@ -115,7 +115,7 @@ def ctx(settings: Settings, http: HttpClient, indices: IndexStore) -> SourceCont
         settings=settings,
         evidence=EvidenceStore(settings.cases_dir),
         case_id="caso-test",
-        log=logging.getLogger("osintsuite.test"),
+        log=logging.getLogger("danterodia.test"),
         dns=FakeDns(),
         indices=indices,
     )

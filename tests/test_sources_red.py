@@ -9,10 +9,10 @@ import httpx
 import pytest
 import respx
 
-from osintsuite.http import HttpError
-from osintsuite.models import Entity, EntityType
-from osintsuite.sources import SourceContext, cuentas
-from osintsuite.sources.cuentas import (
+from danterodia.http import HttpError
+from danterodia.models import Entity, EntityType
+from danterodia.sources import SourceContext, cuentas
+from danterodia.sources.cuentas import (
     DnsCorreo,
     EmailRep,
     Gravatar,
@@ -21,7 +21,7 @@ from osintsuite.sources.cuentas import (
     WhatsMyName,
     evaluar_wmn,
 )
-from osintsuite.sources.infraestructura import (
+from danterodia.sources.infraestructura import (
     Censys,
     CrtSh,
     IpInfo,
@@ -30,7 +30,7 @@ from osintsuite.sources.infraestructura import (
     Tecnologias,
     Wayback,
 )
-from osintsuite.sources.wikidata import Wikidata, _fecha
+from danterodia.sources.wikidata import Wikidata, _fecha
 from tests.conftest import FakeDns, fixture_json
 
 DOM = Entity(type=EntityType.DOMINIO, value="example.com")

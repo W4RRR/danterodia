@@ -4,8 +4,8 @@ import httpx
 import pytest
 import respx
 
-from osintsuite.config import Settings
-from osintsuite.http import (
+from danterodia.config import Settings
+from danterodia.http import (
     BlockedURLError,
     DiskCache,
     HttpClient,

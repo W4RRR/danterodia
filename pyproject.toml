@@ -1,5 +1,5 @@
 [project]
-name = "osintsuite"
+name = "danterodia"
 version = "2.0.0.dev0"
 description = "Herramienta OSINT modular con foco en fuentes españolas (BOE, BORME, contratación pública, INE, prensa). Basada en Dante's Gates Minimal Version de Quantika14."
 readme = "README.md"
@@ -49,41 +49,41 @@ dependencies = [
 mongo = ["pymongo>=4.10"]
 
 [project.scripts]
-osint = "osintsuite.cli:app"
+danterodia = "danterodia.cli:app"
 
-[project.entry-points."osintsuite.sources"]
+[project.entry-points."danterodia.sources"]
 # Sin conexión
-ine = "osintsuite.sources.ine:IneFrecuencia"
-identificadores = "osintsuite.sources.offline:Identificadores"
-telefono = "osintsuite.sources.offline:Telefono"
-email = "osintsuite.sources.offline:EmailBasico"
-politicos_judicial = "osintsuite.sources.offline:PoliticosCasosJudiciales"
+ine = "danterodia.sources.ine:IneFrecuencia"
+identificadores = "danterodia.sources.offline:Identificadores"
+telefono = "danterodia.sources.offline:Telefono"
+email = "danterodia.sources.offline:EmailBasico"
+politicos_judicial = "danterodia.sources.offline:PoliticosCasosJudiciales"
 # Fuentes oficiales españolas (índice local)
-boe = "osintsuite.sources.oficiales:Boe"
-borme = "osintsuite.sources.oficiales:Borme"
-contratacion = "osintsuite.sources.oficiales:Contratacion"
-indultos = "osintsuite.sources.oficiales:Indultos"
-documentos_locales = "osintsuite.sources.oficiales:DocumentosLocales"
+boe = "danterodia.sources.oficiales:Boe"
+borme = "danterodia.sources.oficiales:Borme"
+contratacion = "danterodia.sources.oficiales:Contratacion"
+indultos = "danterodia.sources.oficiales:Indultos"
+documentos_locales = "danterodia.sources.oficiales:DocumentosLocales"
 # Identidad y cuentas
-wikidata = "osintsuite.sources.wikidata:Wikidata"
-whatsmyname = "osintsuite.sources.cuentas:WhatsMyName"
-dns = "osintsuite.sources.cuentas:DnsCorreo"
-gravatar = "osintsuite.sources.cuentas:Gravatar"
-pgp = "osintsuite.sources.cuentas:Pgp"
-hibp = "osintsuite.sources.cuentas:Hibp"
-emailrep = "osintsuite.sources.cuentas:EmailRep"
+wikidata = "danterodia.sources.wikidata:Wikidata"
+whatsmyname = "danterodia.sources.cuentas:WhatsMyName"
+dns = "danterodia.sources.cuentas:DnsCorreo"
+gravatar = "danterodia.sources.cuentas:Gravatar"
+pgp = "danterodia.sources.cuentas:Pgp"
+hibp = "danterodia.sources.cuentas:Hibp"
+emailrep = "danterodia.sources.cuentas:EmailRep"
 # Dominios e IP
-rdap = "osintsuite.sources.infraestructura:Rdap"
-crtsh = "osintsuite.sources.infraestructura:CrtSh"
-wayback = "osintsuite.sources.infraestructura:Wayback"
-tecnologias = "osintsuite.sources.infraestructura:Tecnologias"
-ipinfo = "osintsuite.sources.infraestructura:IpInfo"
-shodan = "osintsuite.sources.infraestructura:Shodan"
-censys = "osintsuite.sources.infraestructura:Censys"
+rdap = "danterodia.sources.infraestructura:Rdap"
+crtsh = "danterodia.sources.infraestructura:CrtSh"
+wayback = "danterodia.sources.infraestructura:Wayback"
+tecnologias = "danterodia.sources.infraestructura:Tecnologias"
+ipinfo = "danterodia.sources.infraestructura:IpInfo"
+shodan = "danterodia.sources.infraestructura:Shodan"
+censys = "danterodia.sources.infraestructura:Censys"
 # Web y prensa
-buscadores = "osintsuite.sources.web:Buscadores"
-prensa = "osintsuite.sources.web:Prensa"
-verificar_noticia = "osintsuite.sources.web:VerificarNoticia"
+buscadores = "danterodia.sources.web:Buscadores"
+prensa = "danterodia.sources.web:Prensa"
+verificar_noticia = "danterodia.sources.web:VerificarNoticia"
 
 [project.urls]
 "Proyecto original" = "https://github.com/Quantika14/osint-suite-tools"
@@ -108,8 +108,8 @@ requires = ["hatchling>=1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/osintsuite"]
-artifacts = ["src/osintsuite/data/**/*", "src/osintsuite/reports/templates/*"]
+packages = ["src/danterodia"]
+artifacts = ["src/danterodia/data/**/*", "src/danterodia/reports/templates/*"]
 
 # ---------------------------------------------------------------- calidad
 
@@ -135,13 +135,13 @@ ignore = ["RUF001", "RUF002", "RUF003"]  # permitimos tildes y comillas tipográ
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106", "E501"]  # los datos de prueba pueden ser largos
 # `timeout` aquí es el timeout HTTP de httpx por petición, no un timeout de asyncio.
-"src/osintsuite/http.py" = ["ASYNC109"]
+"src/danterodia/http.py" = ["ASYNC109"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
 plugins = ["pydantic.mypy"]
-files = ["src/osintsuite", "tests"]
+files = ["src/danterodia", "tests"]
 exclude = ["legacy/"]
 
 [[tool.mypy.overrides]]
@@ -156,7 +156,7 @@ addopts = "-ra --strict-markers"
 filterwarnings = ["error::pytest.PytestUnraisableExceptionWarning"]
 
 [tool.coverage.run]
-source = ["osintsuite"]
+source = ["danterodia"]
 branch = true
 
 [tool.coverage.report]

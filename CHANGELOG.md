@@ -8,7 +8,7 @@ explica **qué** cambió y **por qué**, comparado con el original de Quantika14
 ### Fase 4 — Calidad
 
 #### Añadido
-- **MongoDB opcional** (`pip install osintsuite[mongo]`, `OSINT_DATABASE_URL=mongodb://…`).
+- **MongoDB opcional** (`pip install danterodia[mongo]`, `DANTERODIA_DATABASE_URL=mongodb://…`).
   Cumple el mismo contrato que SQLite, probado con `mongomock` y, en CI, contra un MongoDB 7
   real. *Por qué*: el original obligaba a instalar MongoDB; ahora es una opción para quien
   quiera compartir casos entre equipos.
@@ -41,7 +41,7 @@ Todas las fuentes se han probado **en vivo** el 20/11/2026 con objetivos no pers
 tienen tests sin conexión con respuestas reales recortadas o sintéticas.
 
 #### Añadido: fuentes (29, activables por configuración)
-- **Índice local** (`osint indice boe|borme|placsp|indultos|locales|estado`), en SQLite FTS5.
+- **Índice local** (`danterodia indice boe|borme|placsp|indultos|locales|estado`), en SQLite FTS5.
   *Por qué*: la API del BOE no busca por nombre. El original hacía fuerza bruta de IDs
   (millones de peticiones) y lo guardaba en MongoDB; ahora se usan los sumarios oficiales de
   forma incremental, sin repetir días ya descargados.
@@ -57,7 +57,7 @@ tienen tests sin conexión con respuestas reales recortadas o sintéticas.
   oficiales; sin religión, y la ideología solo con `--sensibles`), `identificadores`
   (CIF/DNI/NIE con dígito de control), `politicos_judicial` (sensible), `prensa`
   (DuckDuckGo News + **newspaper4k**, deduplicada).
-- **Nick**: `whatsmyname` (≈690 webs, actualizable con `osint actualizar-wmn`). Exige
+- **Nick**: `whatsmyname` (≈690 webs, actualizable con `danterodia actualizar-wmn`). Exige
   **código HTTP y texto** esperados, así que no da por bueno un 200 genérico, que era el falso
   positivo del original.
 - **Email**: `email` (sintaxis, desechable, proveedor, alias para pivotar), `dns` (MX, SPF,
@@ -99,7 +99,7 @@ tienen tests sin conexión con respuestas reales recortadas o sintéticas.
 ### Fase 2 — Nueva arquitectura
 
 #### Añadido
-- **Paquete instalable `osintsuite`** (`pyproject.toml`, PEP 621, `uv.lock`) con el comando `osint`.
+- **Paquete instalable `danterodia`** (`pyproject.toml`, PEP 621, `uv.lock`) con el comando `osint`.
   *Por qué*: el original eran scripts sueltos con `input()`, sin versiones fijadas
   (`requiriments.txt`, con errata) y sin forma de automatizarlos ni testearlos.
 - **Modelo de datos unificado** (`models.py`): `Entity`, `Finding`, `Evidence`, `SourceRun`, `Case`.
@@ -120,7 +120,7 @@ tienen tests sin conexión con respuestas reales recortadas o sintéticas.
   *Por qué*: en el original un fallo se tragaba con `except: pass` o tumbaba el script.
 - **Pivoting** (`--depth N`) sin repetir entidades, con límite total y confianza mínima.
 - **Correlación**: deduplicación y confianza combinada «o ruidoso» (`1 − Π(1 − c)`), explicada.
-- **Exportación**: JSON (con JSON Schema: `osint esquema`), CSV (protegido contra inyección de
+- **Exportación**: JSON (con JSON Schema: `danterodia esquema`), CSV (protegido contra inyección de
   fórmulas), Markdown, GEXF, GraphML y CSV para Maltego.
 - **Evidencias** con SHA-256, fecha UTC y URL (`casos/<id>/evidencias/`).
   *Por qué*: el original usaba MD5 y no conservaba prueba de dónde salía cada dato.

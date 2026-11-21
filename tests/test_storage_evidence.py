@@ -4,9 +4,9 @@ from datetime import timedelta
 
 import pytest
 
-from osintsuite.config import Settings
-from osintsuite.evidence import EvidenceStore, sha256_bytes
-from osintsuite.models import (
+from danterodia.config import Settings
+from danterodia.evidence import EvidenceStore, sha256_bytes
+from danterodia.models import (
     Case,
     CaseStatus,
     Entity,
@@ -16,7 +16,7 @@ from osintsuite.models import (
     SourceStatus,
     utcnow,
 )
-from osintsuite.storage import SQLiteRepository, diff_cases, open_repository
+from danterodia.storage import SQLiteRepository, diff_cases, open_repository
 
 
 def _case(valor: str = "pepe") -> Case:

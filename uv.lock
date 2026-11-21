@@ -554,6 +554,95 @@ wheels = [
 ]
 
 [[package]]
+name = "danterodia"
+version = "2.0.0.dev0"
+source = { editable = "." }
+dependencies = [
+    { name = "beautifulsoup4" },
+    { name = "certifi" },
+    { name = "ddgs" },
+    { name = "dnspython" },
+    { name = "email-validator" },
+    { name = "httpx", extra = ["http2", "socks"] },
+    { name = "jinja2" },
+    { name = "lxml" },
+    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "newspaper4k" },
+    { name = "phonenumbers" },
+    { name = "platformdirs" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "pypdf" },
+    { name = "rapidfuzz" },
+    { name = "rich" },
+    { name = "sqlmodel" },
+    { name = "tldextract" },
+    { name = "typer" },
+]
+
+[package.optional-dependencies]
+mongo = [
+    { name = "pymongo" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "mongomock" },
+    { name = "mypy" },
+    { name = "pip-audit" },
+    { name = "pre-commit" },
+    { name = "pymongo" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "respx" },
+    { name = "ruff" },
+    { name = "uv" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "beautifulsoup4", specifier = ">=4.12" },
+    { name = "certifi", specifier = ">=2024.8.30" },
+    { name = "ddgs", specifier = ">=9.0" },
+    { name = "dnspython", specifier = ">=2.7" },
+    { name = "email-validator", specifier = ">=2.2" },
+    { name = "httpx", extras = ["http2", "socks"], specifier = ">=0.28" },
+    { name = "jinja2", specifier = ">=3.1.4" },
+    { name = "lxml", specifier = ">=5.3" },
+    { name = "networkx", specifier = ">=3.4,<4" },
+    { name = "newspaper4k", specifier = ">=0.9.3" },
+    { name = "phonenumbers", specifier = ">=8.13" },
+    { name = "platformdirs", specifier = ">=4.3" },
+    { name = "pydantic", specifier = ">=2.9" },
+    { name = "pydantic-settings", specifier = ">=2.6" },
+    { name = "pymongo", marker = "extra == 'mongo'", specifier = ">=4.10" },
+    { name = "pypdf", specifier = ">=5.1" },
+    { name = "rapidfuzz", specifier = ">=3.10" },
+    { name = "rich", specifier = ">=13.9" },
+    { name = "sqlmodel", specifier = ">=0.0.22" },
+    { name = "tldextract", specifier = ">=5.1" },
+    { name = "typer", specifier = ">=0.15" },
+]
+provides-extras = ["mongo"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mongomock", specifier = ">=4.2" },
+    { name = "mypy", specifier = ">=1.13" },
+    { name = "pip-audit", specifier = ">=2.7" },
+    { name = "pre-commit", specifier = ">=4.0" },
+    { name = "pymongo", specifier = ">=4.10" },
+    { name = "pytest", specifier = ">=8.3" },
+    { name = "pytest-asyncio", specifier = ">=0.24" },
+    { name = "pytest-cov", specifier = ">=6.0" },
+    { name = "respx", specifier = ">=0.22" },
+    { name = "ruff", specifier = ">=0.8" },
+    { name = "uv", specifier = ">=0.5" },
+]
+
+[[package]]
 name = "ddgs"
 version = "9.16.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1435,95 +1524,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e6/99/d27cfc9518f49e4cbc25c683ec7cf8704a9d31311341c291c0e78ddf791b/nodeenv-1.12.0.tar.gz", hash = "sha256:4ea7f88339310afebc3253f2c7a91b94bacf97d73a36a5c108962abdfaca501e", size = 131292, upload-time = "2026-10-31T19:03:18.847Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2d/6a/8a9ac7d5e2f7cf53c459bfef90ebc17a2f8cd54b665af96799d4c534840e/nodeenv-1.12.0-py3-none-any.whl", hash = "sha256:80644d65c10cc2be12e3e4b54b3367ff288c7ad24ae75c2dcc65454fc7449d4d", size = 39442, upload-time = "2026-10-31T19:03:17.427Z" },
-]
-
-[[package]]
-name = "osintsuite"
-version = "2.0.0.dev0"
-source = { editable = "." }
-dependencies = [
-    { name = "beautifulsoup4" },
-    { name = "certifi" },
-    { name = "ddgs" },
-    { name = "dnspython" },
-    { name = "email-validator" },
-    { name = "httpx", extra = ["http2", "socks"] },
-    { name = "jinja2" },
-    { name = "lxml" },
-    { name = "networkx", version = "3.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "networkx", version = "3.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "newspaper4k" },
-    { name = "phonenumbers" },
-    { name = "platformdirs" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "pypdf" },
-    { name = "rapidfuzz" },
-    { name = "rich" },
-    { name = "sqlmodel" },
-    { name = "tldextract" },
-    { name = "typer" },
-]
-
-[package.optional-dependencies]
-mongo = [
-    { name = "pymongo" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "mongomock" },
-    { name = "mypy" },
-    { name = "pip-audit" },
-    { name = "pre-commit" },
-    { name = "pymongo" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "respx" },
-    { name = "ruff" },
-    { name = "uv" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "beautifulsoup4", specifier = ">=4.12" },
-    { name = "certifi", specifier = ">=2024.8.30" },
-    { name = "ddgs", specifier = ">=9.0" },
-    { name = "dnspython", specifier = ">=2.7" },
-    { name = "email-validator", specifier = ">=2.2" },
-    { name = "httpx", extras = ["http2", "socks"], specifier = ">=0.28" },
-    { name = "jinja2", specifier = ">=3.1.4" },
-    { name = "lxml", specifier = ">=5.3" },
-    { name = "networkx", specifier = ">=3.4,<4" },
-    { name = "newspaper4k", specifier = ">=0.9.3" },
-    { name = "phonenumbers", specifier = ">=8.13" },
-    { name = "platformdirs", specifier = ">=4.3" },
-    { name = "pydantic", specifier = ">=2.9" },
-    { name = "pydantic-settings", specifier = ">=2.6" },
-    { name = "pymongo", marker = "extra == 'mongo'", specifier = ">=4.10" },
-    { name = "pypdf", specifier = ">=5.1" },
-    { name = "rapidfuzz", specifier = ">=3.10" },
-    { name = "rich", specifier = ">=13.9" },
-    { name = "sqlmodel", specifier = ">=0.0.22" },
-    { name = "tldextract", specifier = ">=5.1" },
-    { name = "typer", specifier = ">=0.15" },
-]
-provides-extras = ["mongo"]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "mongomock", specifier = ">=4.2" },
-    { name = "mypy", specifier = ">=1.13" },
-    { name = "pip-audit", specifier = ">=2.7" },
-    { name = "pre-commit", specifier = ">=4.0" },
-    { name = "pymongo", specifier = ">=4.10" },
-    { name = "pytest", specifier = ">=8.3" },
-    { name = "pytest-asyncio", specifier = ">=0.24" },
-    { name = "pytest-cov", specifier = ">=6.0" },
-    { name = "respx", specifier = ">=0.22" },
-    { name = "ruff", specifier = ">=0.8" },
-    { name = "uv", specifier = ">=0.5" },
 ]
 
 [[package]]

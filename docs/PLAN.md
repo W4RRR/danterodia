@@ -19,7 +19,7 @@ Basado en [AUDITORIA.md](AUDITORIA.md). Pendiente de aprobación antes de empeza
 | Gestor de dependencias | **uv** (`uv.lock`), con export a `requirements.txt` | Rápido, fija versiones y gestiona Python en Windows. Hay que instalarlo: `winget install astral-sh.uv`. |
 | HTTP | `httpx` async + `hishel` (caché en disco con TTL) + reintentos propios con backoff + semáforo por dominio | Un solo cliente con timeouts por defecto, HTTP/2, proxy y SOCKS para Tor. |
 | CLI | Typer + Rich | Subcomandos, ayuda automática y tablas. |
-| Configuración | `pydantic-settings` (`.env`, variables `OSINT_*`, `osint.toml`) | Las claves nunca van en el código. Cada fuente se activa o desactiva por configuración. |
+| Configuración | `pydantic-settings` (`.env`, variables `DANTERODIA_*`, `osint.toml`) | Las claves nunca van en el código. Cada fuente se activa o desactiva por configuración. |
 | Modelos | Pydantic v2 | Validación y esquema JSON del export gratis. |
 | Almacenamiento | SQLModel sobre SQLite (más FTS5 para los índices BOE/BORME/PLACSP); MongoDB como *extra* opcional `[mongo]` | Cero instalación en Windows. Mongo deja de ser obligatorio. |
 | PDF | `pypdf` (texto) y `pdfplumber` (tablas) | Sustituyen a `pdfgrep` y `qpdf`; sin shell. |
@@ -33,8 +33,8 @@ Basado en [AUDITORIA.md](AUDITORIA.md). Pendiente de aprobación antes de empeza
 ## 3. Arquitectura
 
 ```
-src/osintsuite/
-├── cli.py                 # osint persona|nick|email|telefono|dominio|ip|empresa|noticia|caso …
+src/danterodia/
+├── cli.py                 # danterodia persona|nick|email|telefono|dominio|ip|empresa|noticia|caso …
 ├── config.py              # Settings (pydantic-settings)
 ├── models.py              # Entity, EntityType, Finding, Evidence, Case, SourceRun
 ├── http.py                # HttpClient: timeouts, reintentos, rate limit por dominio, caché, proxy/Tor, bloqueo SSRF
@@ -61,7 +61,7 @@ class Source(Protocol):
     async def run(self, target: Entity, ctx: SourceContext) -> list[Finding]: ...
 ```
 
-- El registro se hace con *entry points* (`osintsuite.sources`), para que cualquiera pueda añadir plugins desde fuera del paquete.
+- El registro se hace con *entry points* (`danterodia.sources`), para que cualquiera pueda añadir plugins desde fuera del paquete.
 - `SourceContext` lleva el `HttpClient`, los `Settings`, el logger del caso y el gestor de evidencias.
 - Si falta la clave: la fuente queda `SKIPPED (sin clave)`. Si lanza una excepción: `FAILED` con traza en el log. Nunca se aborta el caso.
 
@@ -75,7 +75,7 @@ class Source(Protocol):
 
 | Pieza | Propuesta |
 |---|---|
-| 5 `Buscador*.py` | Se reescriben en `sources/` e `investigations/`. Los originales quedan como envoltorios finos que llaman a `osint …`. |
+| 5 `Buscador*.py` | Se reescriben en `sources/` e `investigations/`. Los originales quedan como envoltorios finos que llaman a `danterodia …`. |
 | Login con `123456` (Emails/Teléfonos), `evilmail.php` | **Eliminar** sin sustituto. |
 | `modules/*` útiles (INE, parsers, er, prensa, lista de políticos) | Migrar y corregir. |
 | `modules/` muertos (`bing.py`, `scammerInfo.py`, `wordcloud.py`, `twitter.py`, `facebook.py`, `html_reports/`, `control.py`, `key.py`) | **Eliminar.** |
@@ -101,7 +101,7 @@ class Source(Protocol):
 | 4 | 2 | `http.py` (caché, reintentos, rate limit, bloqueo SSRF) | Tests con `respx` |
 | 5 | 2 | `storage` SQLite + casos (crear, retomar, comparar, borrar) | Tests con SQLite en memoria |
 | 6 | 2 | Interfaz de plugins + orquestador + pivoting `--depth` | Tests con fuentes falsas |
-| 7 | 2 | CLI mínima + envoltorios legacy | `osint --help` |
+| 7 | 2 | CLI mínima + envoltorios legacy | `danterodia --help` |
 | 8 | 3 | Fuentes offline: INE, DNI/NIE/CIF, `phonenumbers`, email (sintaxis), lista de políticos, Civio | Tests sin red |
 | 9 | 3 | Wikipedia/Wikidata, BOE, BORME (índice), PLACSP | Respuestas grabadas + **una prueba manual en vivo** |
 | 10 | 3 | Nick: WhatsMyName async con detección de falsos positivos | Ídem |

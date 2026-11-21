@@ -3,8 +3,8 @@ from __future__ import annotations
 import pytest
 from pydantic import SecretStr, ValidationError
 
-from osintsuite.config import Settings
-from osintsuite.models import Case, Entity, EntityType, Finding, normalize_value
+from danterodia.config import Settings
+from danterodia.models import Case, Entity, EntityType, Finding, normalize_value
 
 
 @pytest.mark.parametrize(
@@ -54,8 +54,8 @@ def test_case_entities_y_finalidad() -> None:
 
 
 def test_settings_listas_csv_y_secretos(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("OSINT_DISABLED_SOURCES", "ddg, mojeek")
-    monkeypatch.setenv("OSINT_HIBP_API_KEY", "secreto-123")
+    monkeypatch.setenv("DANTERODIA_DISABLED_SOURCES", "ddg, mojeek")
+    monkeypatch.setenv("DANTERODIA_HIBP_API_KEY", "secreto-123")
     s = Settings()
     assert s.disabled_sources == ["ddg", "mojeek"]
     assert s.api_key("hibp_api_key") == "secreto-123"
@@ -76,5 +76,5 @@ def test_settings_lista_json_y_clave_vacia() -> None:
 def test_settings_rutas(tmp_path: object) -> None:
     s = Settings(data_dir="d")
     assert s.cases_dir.name == "casos"
-    assert s.db_url.startswith("sqlite:///") and s.db_url.endswith("osintsuite.db")
+    assert s.db_url.startswith("sqlite:///") and s.db_url.endswith("danterodia.db")
     assert Settings(database_url="sqlite://").db_url == "sqlite://"

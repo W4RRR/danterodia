@@ -7,13 +7,13 @@ from typing import ClassVar
 
 import pytest
 
-from osintsuite.config import Settings
-from osintsuite.http import HttpClient, HttpError
-from osintsuite.investigations import Investigation, InvestigationOptions
-from osintsuite.investigations.orchestrator import purge_expired
-from osintsuite.models import CaseStatus, Entity, EntityType, Finding, SourceRun, SourceStatus
-from osintsuite.sources import Source, SourceContext, SourceRegistry
-from osintsuite.storage import SQLiteRepository
+from danterodia.config import Settings
+from danterodia.http import HttpClient, HttpError
+from danterodia.investigations import Investigation, InvestigationOptions
+from danterodia.investigations.orchestrator import purge_expired
+from danterodia.models import CaseStatus, Entity, EntityType, Finding, SourceRun, SourceStatus
+from danterodia.sources import Source, SourceContext, SourceRegistry
+from danterodia.storage import SQLiteRepository
 
 NICK = frozenset({EntityType.USERNAME})
 EMAIL = frozenset({EntityType.EMAIL})
@@ -243,7 +243,7 @@ async def test_fuentes_desconocidas_y_desactivadas(
 def test_purgar_casos_caducados(settings: Settings, repo: SQLiteRepository) -> None:
     from datetime import timedelta
 
-    from osintsuite.models import Case, utcnow
+    from danterodia.models import Case, utcnow
 
     viejo = Case(
         target=Entity(type=EntityType.EMAIL, value="a@b.es"),
