@@ -97,7 +97,7 @@ class Settings(BaseSettings):
     @field_validator("enabled_sources", "disabled_sources", mode="before")
     @classmethod
     def _lista_csv(cls, v: object) -> object:
-        """Acepta ``DANTERODIA_DISABLED_SOURCES=ddg,mojeek`` y también una lista JSON."""
+        """Acepta ``DANTERODIA_DISABLED_SOURCES=buscadores,prensa`` y también una lista JSON."""
         if isinstance(v, str):
             if v.strip().startswith("["):
                 return json.loads(v)
