@@ -1,6 +1,6 @@
 # Plan de modernización
 
-Basado en [AUDITORIA.md](AUDITORIA.md). Pendiente de aprobación antes de empezar la Fase 2.
+Basado en [AUDITORIA.md](AUDITORIA.md). Aprobado el 20/11/2026. Fases 2 a 5 terminadas; queda el bloque opcional 18 (FastAPI + UI, Ahmia/Tor).
 
 ## 1. Principios
 

@@ -5,6 +5,43 @@ explica **qué** cambió y **por qué**, comparado con el original de Quantika14
 
 ## [Sin publicar] — 2.0.0.dev0
 
+### Fase 5 — Documentación y nombre
+
+#### Cambiado
+- **La herramienta pasa a llamarse danterodia.** Cambian el paquete (`osintsuite` →
+  `danterodia`), el comando (`osint` → `danterodia`), las variables de entorno
+  (`OSINT_*` → `DANTERODIA_*`), la carpeta de datos (`%LOCALAPPDATA%\danterodia` en
+  Windows), la base de datos (`danterodia.db`), el User-Agent y el usuario y el servicio de
+  Docker. *Por qué*: un nombre propio que recuerda al original (Dante's Gates) sin
+  confundirse con él. Como aún no hay versión publicada, no se mantienen alias de los
+  nombres anteriores: si tenías un `.env`, cambia el prefijo de sus variables.
+- En `.env.example`, el ejemplo de `DANTERODIA_DISABLED_SOURCES` usaba nombres de fuente
+  que no existen (`ddg`, `mojeek`); ahora usa `buscadores,prensa`.
+
+#### Añadido
+- **README** completo: instalación (uv, pip, Docker), primeros pasos con salida real,
+  comandos, tabla de las 27 fuentes con su estado de verificación en vivo, índice local,
+  configuración, casos e informes, y equivalencias con los `Buscador*.py` del original.
+- **docs/ARQUITECTURA.md**: mapa del código, modelo de datos y flujo de una investigación
+  (con diagramas Mermaid), red, almacenamiento, índice local, informes y tests.
+- **docs/CREAR_PLUGIN.md**: guía para escribir una fuente, dentro del repositorio o como
+  paquete aparte, con un ejemplo completo (`securitytxt`) y sus tests. El ejemplo se ha
+  probado con tests sin conexión y en vivo, instalado como paquete externo.
+- **docs/USO_RESPONSABLE.md**: finalidad, usos legítimos y no legítimos, resumen del marco
+  legal (RGPD, LOPDGDD, Código Penal, Ley de Seguridad Privada), qué hace la herramienta
+  para ayudar a cumplirlo y errores típicos. La ayuda de la CLI ya enlazaba a este fichero.
+
+#### Corregido
+- El CHANGELOG de la Fase 3 decía «29 fuentes»; las registradas son **27**.
+
+#### Pendiente
+- `youtube_api_key`, `intelx_api_key` y `librebor_api_key` existen en la configuración,
+  pero ninguna fuente las usa (la API v1 de LibreBORME está retirada). El README las marca
+  como reservadas.
+- Las fuentes que necesitan clave (`hibp`, `emailrep`, `shodan`, `censys`, y Brave, Google
+  CSE, Mojeek y Google Fact Check dentro de otras fuentes) solo se han probado con
+  respuestas simuladas.
+
 ### Fase 4 — Calidad
 
 #### Añadido
@@ -40,7 +77,7 @@ Todas las fuentes se han probado **en vivo** el 20/11/2026 con objetivos no pers
 (example.com, 8.8.8.8, la organización «github», Miguel de Cervantes, empresas del BORME) y
 tienen tests sin conexión con respuestas reales recortadas o sintéticas.
 
-#### Añadido: fuentes (29, activables por configuración)
+#### Añadido: fuentes (27, activables por configuración)
 - **Índice local** (`danterodia indice boe|borme|placsp|indultos|locales|estado`), en SQLite FTS5.
   *Por qué*: la API del BOE no busca por nombre. El original hacía fuerza bruta de IDs
   (millones de peticiones) y lo guardaba en MongoDB; ahora se usan los sumarios oficiales de
